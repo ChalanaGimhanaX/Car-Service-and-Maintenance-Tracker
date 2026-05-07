@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{layouts/base :: layout('User Management', ~{::section})}">
+<section>
+    <div class="mb-6 flex flex-col gap-2 lg:flex-row lg:items-end lg:justify-between">
+        <div>
+            <p class="text-sm uppercase tracking-[0.22em] text-emerald-300">Admin console</p>
+            <h1 class="text-3xl font-semibold text-white">User management</h1>
+            <p class="text-sm text-slate-400">Search, edit, suspend, restore, and soft delete live accounts.</p>
+        </div>
+    </div>
+
+    <form class="rounded-md border soft-border glass-panel p-4" th:action="@{/admin/users}" method="get">
+        <div class="grid gap-3 lg:grid-cols-[1.4fr_0.8fr_auto]">
+            <div>
+                <label class="mb-2 block text-xs uppercase tracking-[0.18em] text-slate-500">Search</label>
+                <input class="form-input" type="text" name="q" th:value="${keyword}" placeholder="Search by name, email, or phone">
+            </div>
+            <div>
+                <label class="mb-2 block text-xs uppercase tracking-[0.18em] text-slate-500">Status</label>
+                <select class="form-input" name="status">
+                    <option value="">All statuses</option>
+                    <option th:each="status : ${statusValues}" th:value="${status}" th:text="${status}" th:selected="${selectedStatus == status.name()}"></option>
+                </select>
+            </div>
+            <div class="flex items-end gap-2">
+                <button class="action-button bg-emerald-500 text-slate-950 hover:bg-emerald-400" type="submit">
+                    <i data-lucide="search" class="h-4 w-4"></i>Filter
+                </button>
+                <a class="action-button bg-white/5 text-slate-200 hover:bg-white/10" th:href="@{/admin/users}">
+                    <i data-lucide="rotate-ccw" class="h-4 w-4"></i>Reset
+                </a>
+            </div>
+        </div>
+    </form>
+
+    <div class="mt-6 overflow-hidden rounded-md border soft-border glass-panel">
+        <table class="min-w-full divide-y divide-white/10 text-sm">
+            <thead class="bg-slate-900/90 text-slate-400">
+            <tr>
+                <th class="px-4 py-3 text-left font-medium">Name</th>
+                <th class="px-4 py-3 text-left font-medium">Email</th>
+                <th class="px-4 py-3 text-left font-medium">Role</th>
+                <th class="px-4 py-3 text-left font-medium">Status</th>
+                <th class="px-4 py-3 text-left font-medium">Last login</th>
+                <th class="px-4 py-3 text-right font-medium">Actions</th>
+            </tr>
+            </thead>
+            <tbody class="divide-y divide-white/10 bg-slate-950/40">
+            <tr class="table-row" th:each="user : ${usersPage.content}">
+                <td class="px-4 py-3 text-slate-100">
+                    <div class="font-medium" th:text="${user.fullName}">Full Name</div>
+                    <div class="text-xs text-slate-500" th:text="${user.phone}">Phone</div>
+                </td>
+                <td class="px-4 py-3 text-slate-300" th:text="${user.email}">email@example.com</td>
+                <td class="px-4 py-3 text-slate-300" th:text="${user.role}">CLIENT</td>
+                <td class="px-4 py-3">
+                    <span class="badge"
+                          th:classappend="${user.status.name() == 'ACTIVE'} ? ' badge-active' : (${user.status.name() == 'SUSPENDED'} ? ' badge-suspended' : (${user.status.name() == 'PENDING'} ? ' badge-pending' : ' badge-deleted'))"
+                          th:text="${user.status}">ACTIVE</span>
+                </td>
+                <td class="px-4 py-3 text-slate-400" th:text="${user.lastLoginAt != null ? #temporals.format(user.lastLoginAt, 'dd MMM yyyy, HH:mm') : 'Never'}">Never</td>
+                <td class="px-4 py-3">
+                    <div class="flex flex-wrap justify-end gap-2">
+                        <a class="action-button bg-white/5 text-slate-200 hover:bg-white/10" th:href="@{/admin/users/{id}/edit(id=${user.id})}">
+                            <i data-lucide="square-pen" class="h-4 w-4"></i>Edit
+                        </a>
+                        <form th:if="${user.status.name() == 'ACTIVE'}" th:action="@{/admin/users/{id}/suspend(id=${user.id})}" method="post">
+                            <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
+                            <button class="action-button bg-amber-400/15 text-amber-200 hover:bg-amber-400/25" type="submit">
+                                <i data-lucide="ban" class="h-4 w-4"></i>Suspend
+                            </button>
+                        </form>
+                        <form th:if="${user.status.name() == 'SUSPENDED'}" th:action="@{/admin/users/{id}/restore(id=${user.id})}" method="post">
+                            <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
+                            <button class="action-button bg-emerald-500/15 text-emerald-200 hover:bg-emerald-500/25" type="submit">
+                                <i data-lucide="shield-check" class="h-4 w-4"></i>Restore
+                            </button>
+                        </form>
+                        <form th:if="${user.status.name() != 'DELETED'}" th:action="@{/admin/users/{id}/delete(id=${user.id})}" method="post">
+                            <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
+                            <button class="action-button bg-rose-500/15 text-rose-200 hover:bg-rose-500/25" type="submit">
+                                <i data-lucide="trash-2" class="h-4 w-4"></i>Archive
+                            </button>
+                        </form>
+                    </div>
+                </td>
+            </tr>
+            <tr th:if="${usersPage.totalElements == 0}">
+                <td class="px-4 py-6 text-slate-400" colspan="6">No matching users found.</td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <div class="mt-5 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between text-sm text-slate-400">
+        <p>Page <span th:text="${usersPage.number + 1}">1</span> of <span th:text="${usersPage.totalPages > 0 ? usersPage.totalPages : 1}">1</span></p>
+        <div class="flex gap-2">
+            <a th:if="${usersPage.hasPrevious()}" class="action-button bg-white/5 text-slate-200 hover:bg-white/10"
+               th:href="@{/admin/users(page=${usersPage.number - 1}, q=${keyword}, status=${selectedStatus})}">
+                <i data-lucide="chevron-left" class="h-4 w-4"></i>Prev
+            </a>
+            <a th:if="${usersPage.hasNext()}" class="action-button bg-white/5 text-slate-200 hover:bg-white/10"
+               th:href="@{/admin/users(page=${usersPage.number + 1}, q=${keyword}, status=${selectedStatus})}">
+                Next<i data-lucide="chevron-right" class="h-4 w-4"></i>
+            </a>
+        </div>
+    </div>
+</section>
+</html>

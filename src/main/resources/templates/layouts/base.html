@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org" th:fragment="layout(pageTitle, pageContent)">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="${pageTitle}">Car Service Tracker</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        ink: {
+                            950: '#020617'
+                        },
+                        mint: {
+                            400: '#34d399',
+                            500: '#10b981'
+                        }
+                    }
+                }
+            }
+        };
+    </script>
+    <link rel="stylesheet" th:href="@{/css/app.css}">
+    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js" defer></script>
+    <script th:src="@{/js/app.js}" defer></script>
+</head>
+<body class="min-h-screen bg-slate-950 text-slate-100">
+<div class="min-h-screen bg-slate-950">
+    <header class="border-b border-white/10 bg-slate-950/90 backdrop-blur">
+        <div class="mx-auto flex max-w-7xl flex-col gap-4 px-4 py-4 sm:px-6 lg:px-8 lg:flex-row lg:items-center lg:justify-between">
+            <div class="flex items-center gap-3">
+                <div class="flex h-10 w-10 items-center justify-center rounded-md bg-emerald-500/15 text-emerald-300">
+                    <i data-lucide="car-front" class="h-5 w-5"></i>
+                </div>
+                <div>
+                    <p class="text-sm font-semibold tracking-wide text-emerald-300">Car Service and Maintenance Tracker</p>
+                    <p class="text-xs text-slate-400">User management, audit trail, and live MySQL data</p>
+                </div>
+            </div>
+            <nav class="flex flex-wrap items-center gap-2 text-sm text-slate-300">
+                <a class="rounded-md px-3 py-2 hover:bg-white/5 hover:text-white" th:href="@{/dashboard}">
+                    <span class="inline-flex items-center gap-2"><i data-lucide="layout-dashboard" class="h-4 w-4"></i>Dashboard</span>
+                </a>
+                <a class="rounded-md px-3 py-2 hover:bg-white/5 hover:text-white" th:href="@{/admin/users}">
+                    <span class="inline-flex items-center gap-2"><i data-lucide="users" class="h-4 w-4"></i>Users</span>
+                </a>
+                <a class="rounded-md px-3 py-2 hover:bg-white/5 hover:text-white" th:href="@{/profile}">
+                    <span class="inline-flex items-center gap-2"><i data-lucide="user" class="h-4 w-4"></i>Profile</span>
+                </a>
+                <a class="rounded-md px-3 py-2 hover:bg-white/5 hover:text-white" th:href="@{/vehicles}">
+                    <span class="inline-flex items-center gap-2"><i data-lucide="truck" class="h-4 w-4"></i>Vehicles</span>
+                </a>
+                <a class="rounded-md px-3 py-2 hover:bg-white/5 hover:text-white" th:href="@{/services}">
+                    <span class="inline-flex items-center gap-2"><i data-lucide="wrench" class="h-4 w-4"></i>Services</span>
+                </a>
+                <a class="rounded-md px-3 py-2 hover:bg-white/5 hover:text-white" th:href="@{/maintenance}">
+                    <span class="inline-flex items-center gap-2"><i data-lucide="bell-ring" class="h-4 w-4"></i>Maintenance</span>
+                </a>
+                <form th:action="@{/logout}" method="post" class="ml-0 lg:ml-2">
+                    <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
+                    <button class="action-button bg-white/5 text-slate-200 hover:bg-white/10" type="submit">
+                        <i data-lucide="log-out" class="h-4 w-4"></i>Logout
+                    </button>
+                </form>
+            </nav>
+        </div>
+    </header>
+
+    <main class="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
+        <div th:if="${successMessage}" class="mb-6 rounded-md border border-emerald-400/20 bg-emerald-400/10 px-4 py-3 text-sm text-emerald-200" th:text="${successMessage}"></div>
+        <div th:if="${formError}" class="mb-6 rounded-md border border-rose-400/20 bg-rose-400/10 px-4 py-3 text-sm text-rose-200" th:text="${formError}"></div>
+        <div th:replace="${pageContent}"></div>
+    </main>
+</div>
+</body>
+</html>

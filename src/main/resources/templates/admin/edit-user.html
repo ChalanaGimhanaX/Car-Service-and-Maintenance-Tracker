@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{layouts/base :: layout('Edit User', ~{::section})}">
+<section>
+    <div class="mb-6">
+        <p class="text-sm uppercase tracking-[0.22em] text-emerald-300">Admin console</p>
+        <h1 class="text-3xl font-semibold text-white">Edit user</h1>
+        <p class="text-sm text-slate-400">Update the live record directly in MySQL.</p>
+    </div>
+
+    <div class="grid gap-6 lg:grid-cols-[1.1fr_0.9fr]">
+        <form class="rounded-md border soft-border glass-panel p-5 space-y-4" th:action="@{/admin/users/{id}/edit(id=${userId})}" th:object="${userForm}" method="post">
+            <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
+            <div>
+                <label class="mb-2 block text-sm font-medium text-slate-300" for="fullName">Full name</label>
+                <input class="form-input" id="fullName" type="text" th:field="*{fullName}">
+                <p class="mt-1 text-xs text-rose-300" th:if="${#fields.hasErrors('fullName')}" th:errors="*{fullName}"></p>
+            </div>
+            <div>
+                <label class="mb-2 block text-sm font-medium text-slate-300" for="email">Email</label>
+                <input class="form-input" id="email" type="email" th:field="*{email}">
+                <p class="mt-1 text-xs text-rose-300" th:if="${#fields.hasErrors('email')}" th:errors="*{email}"></p>
+            </div>
+            <div>
+                <label class="mb-2 block text-sm font-medium text-slate-300" for="phone">Phone</label>
+                <input class="form-input" id="phone" type="text" th:field="*{phone}">
+                <p class="mt-1 text-xs text-rose-300" th:if="${#fields.hasErrors('phone')}" th:errors="*{phone}"></p>
+            </div>
+            <div class="grid gap-4 md:grid-cols-2">
+                <div>
+                    <label class="mb-2 block text-sm font-medium text-slate-300" for="role">Role</label>
+                    <select class="form-input" id="role" th:field="*{role}">
+                        <option th:each="role : ${roleValues}" th:value="${role}" th:text="${role}"></option>
+                    </select>
+                </div>
+                <div>
+                    <label class="mb-2 block text-sm font-medium text-slate-300" for="status">Status</label>
+                    <select class="form-input" id="status" th:field="*{status}">
+                        <option th:each="statusItem : ${statusValues}" th:value="${statusItem}" th:text="${statusItem}"></option>
+                    </select>
+                </div>
+            </div>
+            <div class="flex flex-wrap gap-3 pt-2">
+                <button class="action-button bg-emerald-500 text-slate-950 hover:bg-emerald-400" type="submit">
+                    <i data-lucide="save" class="h-4 w-4"></i>Save changes
+                </button>
+                <a class="action-button bg-white/5 text-slate-200 hover:bg-white/10" th:href="@{/admin/users}">
+                    <i data-lucide="arrow-left" class="h-4 w-4"></i>Back to list
+                </a>
+            </div>
+        </form>
+
+        <aside class="rounded-md border soft-border glass-panel p-5">
+            <h2 class="text-lg font-semibold text-white">Operations</h2>
+            <p class="mt-2 text-sm text-slate-400">Use the status field for live visibility and the archive action for soft delete.</p>
+            <div class="mt-4 space-y-3">
+                <form th:if="${userForm.status.name() == 'ACTIVE'}" th:action="@{/admin/users/{id}/suspend(id=${userId})}" method="post">
+                    <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
+                    <button class="action-button w-full justify-center bg-amber-400/15 text-amber-200 hover:bg-amber-400/25" type="submit">
+                        <i data-lucide="ban" class="h-4 w-4"></i>Suspend account
+                    </button>
+                </form>
+                <form th:if="${userForm.status.name() == 'SUSPENDED'}" th:action="@{/admin/users/{id}/restore(id=${userId})}" method="post">
+                    <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
+                    <button class="action-button w-full justify-center bg-emerald-500/15 text-emerald-200 hover:bg-emerald-500/25" type="submit">
+                        <i data-lucide="shield-check" class="h-4 w-4"></i>Restore account
+                    </button>
+                </form>
+                <form th:if="${userForm.status.name() != 'DELETED'}" th:action="@{/admin/users/{id}/delete(id=${userId})}" method="post">
+                    <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
+                    <button class="action-button w-full justify-center bg-rose-500/15 text-rose-200 hover:bg-rose-500/25" type="submit">
+                        <i data-lucide="trash-2" class="h-4 w-4"></i>Archive account
+                    </button>
+                </form>
+            </div>
+        </aside>
+    </div>
+</section>
+</html>

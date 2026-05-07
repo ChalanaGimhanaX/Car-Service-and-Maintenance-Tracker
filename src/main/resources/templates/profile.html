@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{layouts/base :: layout('Profile', ~{::section})}">
+<section>
+    <div class="mb-6">
+        <p class="text-sm uppercase tracking-[0.22em] text-emerald-300">My account</p>
+        <h1 class="text-3xl font-semibold text-white">Profile</h1>
+        <p class="text-sm text-slate-400">Logged-in users can inspect and update their own details here.</p>
+    </div>
+
+    <div class="grid gap-6 lg:grid-cols-[1.1fr_0.9fr]">
+        <form class="rounded-md border soft-border glass-panel p-5 space-y-4" th:action="@{/profile}" th:object="${profileForm}" method="post">
+            <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
+            <div>
+                <label class="mb-2 block text-sm font-medium text-slate-300" for="fullName">Full name</label>
+                <input class="form-input" id="fullName" type="text" th:field="*{fullName}">
+                <p class="mt-1 text-xs text-rose-300" th:if="${#fields.hasErrors('fullName')}" th:errors="*{fullName}"></p>
+            </div>
+            <div>
+                <label class="mb-2 block text-sm font-medium text-slate-300" for="phone">Phone</label>
+                <input class="form-input" id="phone" type="text" th:field="*{phone}">
+                <p class="mt-1 text-xs text-rose-300" th:if="${#fields.hasErrors('phone')}" th:errors="*{phone}"></p>
+            </div>
+            <button class="action-button bg-emerald-500 text-slate-950 hover:bg-emerald-400" type="submit">
+                <i data-lucide="save" class="h-4 w-4"></i>Save profile
+            </button>
+        </form>
+
+        <aside class="rounded-md border soft-border glass-panel p-5">
+            <h2 class="text-lg font-semibold text-white">Account snapshot</h2>
+            <div class="mt-4 space-y-3 text-sm text-slate-300">
+                <div class="rounded-md border soft-border bg-slate-950/55 p-4">
+                    <p class="text-xs uppercase tracking-[0.18em] text-slate-500">Email</p>
+                    <p class="mt-2 text-slate-100" th:text="${profile.email}">email</p>
+                </div>
+                <div class="rounded-md border soft-border bg-slate-950/55 p-4">
+                    <p class="text-xs uppercase tracking-[0.18em] text-slate-500">Role</p>
+                    <p class="mt-2 text-slate-100" th:text="${profile.role}">CLIENT</p>
+                </div>
+                <div class="rounded-md border soft-border bg-slate-950/55 p-4">
+                    <p class="text-xs uppercase tracking-[0.18em] text-slate-500">Status</p>
+                    <p class="mt-2 text-slate-100" th:text="${profile.status}">ACTIVE</p>
+                </div>
+                <div class="rounded-md border soft-border bg-slate-950/55 p-4">
+                    <p class="text-xs uppercase tracking-[0.18em] text-slate-500">Last login</p>
+                    <p class="mt-2 text-slate-100" th:text="${profile.lastLoginAt != null ? #temporals.format(profile.lastLoginAt, 'dd MMM yyyy, HH:mm') : 'Never'}">Never</p>
+                </div>
+            </div>
+        </aside>
+    </div>
+</section>
+</html>
