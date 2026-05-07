@@ -259,15 +259,7 @@ Environment variables you can override:
 - `ProfileController.java`  
   Lets a user edit their own profile.
 
-## Viva Talking Points
 
-- The project uses a real database instead of file storage.
-- Passwords are stored as hashes, not plain text.
-- Admin actions are tracked in an audit table.
-- Soft delete is used instead of physical delete.
-- Role-based access keeps admin functions separate from client functions.
-- The placeholder modules keep the repository complete as a team project.
-- The dashboard proves the backend is live because it reads counters and recent records from MySQL.
 
 ## Local Run Notes
 
