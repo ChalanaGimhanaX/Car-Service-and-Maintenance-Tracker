@@ -273,7 +273,7 @@ Environment variables you can override:
 
 - [VIVA_GUIDE.md](./VIVA_GUIDE.md)
 
-This file contains the speaking order, feature explanation, expected questions, and a short honesty note about AI-assisted scaffolding if the panel asks how the repo was assembled.
+This file contains the speaking order, feature explanation, and expected questions for the viva.
 
 ## Local Run Notes
 

@@ -88,10 +88,3 @@ To avoid storing plain text passwords in the database.
 ### Why separate status from role?
 
 Because a user can be an admin or client, and still be active, suspended, pending, or deleted.
-
-## 9. If Asked About AI Assistance
-
-Be honest and say the project used AI assistance for scaffolding, documentation, and quick generation of repetitive structures, but the database model, security flow, and final integration were reviewed and adjusted by hand.
-
-That answer is simple, credible, and much safer than pretending the tool was never involved.
-
