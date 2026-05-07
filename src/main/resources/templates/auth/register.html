@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Register | Car Service Tracker</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" th:href="@{/css/app.css}">
+    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js" defer></script>
+    <script th:src="@{/js/app.js}" defer></script>
+</head>
+<body class="min-h-screen bg-slate-950 text-slate-100">
+<main class="grid min-h-screen lg:grid-cols-[0.9fr_1.1fr]">
+    <section class="flex items-center justify-center px-6 py-12">
+        <div class="w-full max-w-xl rounded-md border soft-border glass-panel p-8 shadow-2xl shadow-black/30">
+            <p class="text-sm font-semibold uppercase tracking-[0.2em] text-emerald-300">Client onboarding</p>
+            <h1 class="mt-3 text-3xl font-semibold text-white">Create account</h1>
+            <p class="mt-2 text-sm text-slate-400">This stores the account directly in MySQL and marks it ready for the admin dashboard.</p>
+
+            <div th:if="${formError}" class="mt-4 rounded-md border border-rose-400/20 bg-rose-400/10 px-4 py-3 text-sm text-rose-200" th:text="${formError}"></div>
+
+            <form class="mt-6 space-y-4" th:action="@{/register}" th:object="${registration}" method="post">
+                <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
+                <div>
+                    <label class="mb-2 block text-sm font-medium text-slate-300" for="fullName">Full name</label>
+                    <input class="form-input" id="fullName" type="text" th:field="*{fullName}" placeholder="Enter your name">
+                    <p class="mt-1 text-xs text-rose-300" th:if="${#fields.hasErrors('fullName')}" th:errors="*{fullName}"></p>
+                </div>
+                <div>
+                    <label class="mb-2 block text-sm font-medium text-slate-300" for="email">Email</label>
+                    <input class="form-input" id="email" type="email" th:field="*{email}" placeholder="you@example.com">
+                    <p class="mt-1 text-xs text-rose-300" th:if="${#fields.hasErrors('email')}" th:errors="*{email}"></p>
+                </div>
+                <div>
+                    <label class="mb-2 block text-sm font-medium text-slate-300" for="phone">Phone</label>
+                    <input class="form-input" id="phone" type="text" th:field="*{phone}" placeholder="0771234567">
+                    <p class="mt-1 text-xs text-rose-300" th:if="${#fields.hasErrors('phone')}" th:errors="*{phone}"></p>
+                </div>
+                <div>
+                    <label class="mb-2 block text-sm font-medium text-slate-300" for="password">Password</label>
+                    <div class="relative">
+                        <input class="form-input pr-12" id="password" type="password" th:field="*{password}" placeholder="Minimum 8 characters">
+                        <button type="button" class="absolute inset-y-0 right-0 flex items-center px-3 text-slate-400 hover:text-white" data-password-toggle="#password">
+                            <i data-lucide="eye" class="h-4 w-4"></i>
+                        </button>
+                    </div>
+                    <p class="mt-1 text-xs text-rose-300" th:if="${#fields.hasErrors('password')}" th:errors="*{password}"></p>
+                </div>
+                <div>
+                    <label class="mb-2 block text-sm font-medium text-slate-300" for="confirmPassword">Confirm password</label>
+                    <input class="form-input" id="confirmPassword" type="password" th:field="*{confirmPassword}" placeholder="Repeat password">
+                    <p class="mt-1 text-xs text-rose-300" th:if="${#fields.hasErrors('confirmPassword')}" th:errors="*{confirmPassword}"></p>
+                </div>
+                <button class="action-button w-full justify-center bg-emerald-500 text-slate-950 hover:bg-emerald-400" type="submit">
+                    <i data-lucide="user-plus" class="h-4 w-4"></i>Register client
+                </button>
+            </form>
+            <div class="mt-6 text-sm text-slate-400">
+                Already registered? <a class="font-medium text-emerald-300 hover:text-emerald-200" th:href="@{/login}">Sign in here</a>.
+            </div>
+        </div>
+    </section>
+
+    <aside class="flex items-center justify-center px-6 py-12">
+        <div class="w-full max-w-xl rounded-md border soft-border bg-slate-900/70 p-8">
+            <h2 class="text-2xl font-semibold text-white">What gets saved</h2>
+            <div class="mt-5 grid gap-3 text-sm text-slate-300">
+                <div class="rounded-md border soft-border bg-slate-950/70 p-4">Full name, email, phone, hashed password, role, status, timestamps</div>
+                <div class="rounded-md border soft-border bg-slate-950/70 p-4">Admin actions captured in audit_logs</div>
+                <div class="rounded-md border soft-border bg-slate-950/70 p-4">Login timestamps updated after successful authentication</div>
+            </div>
+        </div>
+    </aside>
+</main>
+</body>
+</html>
