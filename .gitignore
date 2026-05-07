@@ -7,6 +7,6 @@ target/
 out/
 *.log
 *.tmp
+*.pdf
 Thumbs.db
 .DS_Store
-
