@@ -1,0 +1,27 @@
+spring:
+  application:
+    name: car-service-maintenance-tracker
+  datasource:
+    url: jdbc:mysql://localhost:3306/car_service_tracker?createDatabaseIfNotExist=true&useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC
+    username: ${DB_USERNAME:root}
+    password: ${DB_PASSWORD:root}
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    open-in-view: false
+    properties:
+      hibernate:
+        format_sql: true
+    show-sql: true
+  thymeleaf:
+    cache: false
+  flyway:
+    enabled: true
+
+server:
+  port: 8080
+
+logging:
+  level:
+    org.springframework.security: info
+    org.hibernate.SQL: debug
