@@ -269,12 +269,6 @@ Environment variables you can override:
 - The placeholder modules keep the repository complete as a team project.
 - The dashboard proves the backend is live because it reads counters and recent records from MySQL.
 
-## Viva Pack
-
-- [VIVA_GUIDE.md](./VIVA_GUIDE.md)
-
-This file contains the speaking order, feature explanation, and expected questions for the viva.
-
 ## Local Run Notes
 
 1. Start MySQL.
