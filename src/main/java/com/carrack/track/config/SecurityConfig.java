@@ -11,6 +11,14 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 
+/**
+ * Security configuration for the application.
+ *
+ * Notes:
+ * - `PasswordEncoder` must match how passwords are hashed when created.
+ * - `DaoAuthenticationProvider` delegates to `CustomUserDetailsService` to load users.
+ * - `securityFilterChain` defines which URLs are public and which require authentication.
+ */
 @Configuration
 @EnableMethodSecurity
 public class SecurityConfig {
@@ -20,6 +28,10 @@ public class SecurityConfig {
         return new BCryptPasswordEncoder();
     }
 
+    /**
+     * Sets up authentication provider to use the custom user details service
+     * and the configured password encoder.
+     */
     @Bean
     public DaoAuthenticationProvider authenticationProvider(CustomUserDetailsService userDetailsService, PasswordEncoder passwordEncoder) {
         DaoAuthenticationProvider provider = new DaoAuthenticationProvider();
@@ -28,6 +40,11 @@ public class SecurityConfig {
         return provider;
     }
 
+    /**
+     * Configure HTTP security: public static resources and auth pages are permitted,
+     * everything else requires authentication. Form login uses `/login` and the
+     * `LoginSuccessHandler` to perform post-login actions (e.g. redirect + audit).
+     */
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http, DaoAuthenticationProvider provider, LoginSuccessHandler loginSuccessHandler) throws Exception {
         http.authenticationProvider(provider);
