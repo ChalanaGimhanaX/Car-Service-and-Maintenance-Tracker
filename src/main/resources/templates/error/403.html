@@ -1,14 +1,6 @@
 <!DOCTYPE html>
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Forbidden</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" th:href="@{/css/app.css}">
-    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js" defer></script>
-    <script th:src="@{/js/app.js}" defer></script>
-</head>
+<head th:replace="~{fragments/head :: head('Forbidden')}"></head>
 <body class="min-h-screen bg-slate-950 text-slate-100">
 <main class="mx-auto flex min-h-screen max-w-3xl items-center px-6">
     <div class="rounded-md border soft-border glass-panel p-8">

@@ -1,31 +1,6 @@
 <!DOCTYPE html>
 <html lang="en" xmlns:th="http://www.thymeleaf.org" th:fragment="layout(pageTitle, pageContent)">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title th:text="${pageTitle}">Car Service Tracker</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    colors: {
-                        ink: {
-                            950: '#020617'
-                        },
-                        mint: {
-                            400: '#34d399',
-                            500: '#10b981'
-                        }
-                    }
-                }
-            }
-        };
-    </script>
-    <link rel="stylesheet" th:href="@{/css/app.css}">
-    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js" defer></script>
-    <script th:src="@{/js/app.js}" defer></script>
-</head>
+<head th:replace="~{fragments/head :: head(${pageTitle})}"></head>
 <body class="min-h-screen bg-slate-950 text-slate-100">
 <div class="min-h-screen bg-slate-950">
     <header class="border-b border-white/10 bg-slate-950/90 backdrop-blur">
