@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{layouts/base :: layout('Vehicle Form', ~{::section})}">
+<section>
+    <div class="mb-6">
+        <p class="text-sm uppercase tracking-[0.22em] text-emerald-300">Fleet records</p>
+        <h1 class="text-3xl font-semibold text-white" th:text="${formMode == 'edit' ? 'Edit vehicle' : 'Add vehicle'}">Add vehicle</h1>
+        <p class="text-sm text-slate-400">Maintain registration, technical, and operational status details.</p>
+    </div>
+
+    <form class="rounded-md border soft-border glass-panel p-5" th:object="${vehicleForm}"
+          th:action="${formMode == 'edit'} ? @{/vehicles/{id}/edit(id=${vehicleId})} : @{/vehicles}" method="post">
+        <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
+
+        <div class="grid gap-4 md:grid-cols-2">
+            <div>
+                <label class="mb-2 block text-sm font-medium text-slate-300" for="vehicleNumber">Vehicle number</label>
+                <input class="form-input" id="vehicleNumber" type="text" th:field="*{vehicleNumber}" placeholder="WP ABC-1234">
+                <p class="mt-1 text-xs text-rose-300" th:if="${#fields.hasErrors('vehicleNumber')}" th:errors="*{vehicleNumber}"></p>
+            </div>
+            <div>
+                <label class="mb-2 block text-sm font-medium text-slate-300" for="brand">Brand</label>
+                <input class="form-input" id="brand" type="text" th:field="*{brand}" placeholder="Toyota">
+                <p class="mt-1 text-xs text-rose-300" th:if="${#fields.hasErrors('brand')}" th:errors="*{brand}"></p>
+            </div>
+            <div>
+                <label class="mb-2 block text-sm font-medium text-slate-300" for="model">Model</label>
+                <input class="form-input" id="model" type="text" th:field="*{model}" placeholder="Prius">
+                <p class="mt-1 text-xs text-rose-300" th:if="${#fields.hasErrors('model')}" th:errors="*{model}"></p>
+            </div>
+            <div>
+                <label class="mb-2 block text-sm font-medium text-slate-300" for="type">Type</label>
+                <input class="form-input" id="type" type="text" th:field="*{type}" placeholder="Sedan">
+                <p class="mt-1 text-xs text-rose-300" th:if="${#fields.hasErrors('type')}" th:errors="*{type}"></p>
+            </div>
+            <div>
+                <label class="mb-2 block text-sm font-medium text-slate-300" for="fuelType">Fuel type</label>
+                <select class="form-input" id="fuelType" th:field="*{fuelType}">
+                    <option value="">Select fuel type</option>
+                    <option th:each="fuelType : ${fuelTypes}" th:value="${fuelType}" th:text="${fuelType}"></option>
+                </select>
+                <p class="mt-1 text-xs text-rose-300" th:if="${#fields.hasErrors('fuelType')}" th:errors="*{fuelType}"></p>
+            </div>
+            <div>
+                <label class="mb-2 block text-sm font-medium text-slate-300" for="status">Status</label>
+                <select class="form-input" id="status" th:field="*{status}">
+                    <option th:each="status : ${statusValues}" th:if="${status.name() != 'DELETED'}" th:value="${status}" th:text="${status}"></option>
+                </select>
+                <p class="mt-1 text-xs text-rose-300" th:if="${#fields.hasErrors('status')}" th:errors="*{status}"></p>
+            </div>
+            <div>
+                <label class="mb-2 block text-sm font-medium text-slate-300" for="year">Year</label>
+                <input class="form-input" id="year" type="number" min="1900" max="2100" th:field="*{year}" placeholder="2020">
+                <p class="mt-1 text-xs text-rose-300" th:if="${#fields.hasErrors('year')}" th:errors="*{year}"></p>
+            </div>
+            <div>
+                <label class="mb-2 block text-sm font-medium text-slate-300" for="mileage">Mileage</label>
+                <input class="form-input" id="mileage" type="number" min="0" th:field="*{mileage}" placeholder="45000">
+                <p class="mt-1 text-xs text-rose-300" th:if="${#fields.hasErrors('mileage')}" th:errors="*{mileage}"></p>
+            </div>
+        </div>
+
+        <div class="mt-4">
+            <label class="mb-2 block text-sm font-medium text-slate-300" for="notes">Notes</label>
+            <textarea class="form-input min-h-32" id="notes" th:field="*{notes}" placeholder="Condition, service notes, or assignment details"></textarea>
+            <p class="mt-1 text-xs text-rose-300" th:if="${#fields.hasErrors('notes')}" th:errors="*{notes}"></p>
+        </div>
+
+        <div class="mt-5 flex flex-wrap gap-3">
+            <button class="action-button bg-emerald-500 text-slate-950 hover:bg-emerald-400" type="submit">
+                <i data-lucide="save" class="h-4 w-4"></i><span th:text="${formMode == 'edit' ? 'Save changes' : 'Create vehicle'}">Save</span>
+            </button>
+            <a class="action-button bg-white/5 text-slate-200 hover:bg-white/10" th:href="@{/vehicles}">
+                <i data-lucide="arrow-left" class="h-4 w-4"></i>Back to list
+            </a>
+        </div>
+    </form>
+</section>
+</html>

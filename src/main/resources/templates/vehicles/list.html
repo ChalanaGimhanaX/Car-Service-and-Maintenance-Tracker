@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{layouts/base :: layout('Vehicle Management', ~{::section})}">
+<section>
+    <div class="mb-6 flex flex-col gap-3 lg:flex-row lg:items-end lg:justify-between">
+        <div>
+            <p class="text-sm uppercase tracking-[0.22em] text-emerald-300">Fleet records</p>
+            <h1 class="text-3xl font-semibold text-white">Vehicle management</h1>
+            <p class="text-sm text-slate-400">Search, inspect, update, and archive vehicle records.</p>
+        </div>
+        <a class="action-button bg-emerald-500 text-slate-950 hover:bg-emerald-400" th:href="@{/vehicles/new}">
+            <i data-lucide="plus" class="h-4 w-4"></i>Add vehicle
+        </a>
+    </div>
+
+    <form class="rounded-md border soft-border glass-panel p-4" th:action="@{/vehicles}" method="get">
+        <div class="grid gap-3 lg:grid-cols-[1.4fr_0.8fr_auto]">
+            <div>
+                <label class="mb-2 block text-xs uppercase tracking-[0.18em] text-slate-500">Search</label>
+                <input class="form-input" type="text" name="q" th:value="${keyword}" placeholder="Search by number, brand, model, or type">
+            </div>
+            <div>
+                <label class="mb-2 block text-xs uppercase tracking-[0.18em] text-slate-500">Status</label>
+                <select class="form-input" name="status">
+                    <option value="">All active records</option>
+                    <option th:each="status : ${statusValues}" th:if="${status.name() != 'DELETED'}" th:value="${status}" th:text="${status}" th:selected="${selectedStatus == status.name()}"></option>
+                </select>
+            </div>
+            <div class="flex items-end gap-2">
+                <button class="action-button bg-emerald-500 text-slate-950 hover:bg-emerald-400" type="submit">
+                    <i data-lucide="search" class="h-4 w-4"></i>Filter
+                </button>
+                <a class="action-button bg-white/5 text-slate-200 hover:bg-white/10" th:href="@{/vehicles}">
+                    <i data-lucide="rotate-ccw" class="h-4 w-4"></i>Reset
+                </a>
+            </div>
+        </div>
+    </form>
+
+    <div class="mt-6 overflow-hidden rounded-md border soft-border glass-panel">
+        <table class="min-w-full divide-y divide-white/10 text-sm">
+            <thead class="bg-slate-900/90 text-slate-400">
+            <tr>
+                <th class="px-4 py-3 text-left font-medium">Vehicle</th>
+                <th class="px-4 py-3 text-left font-medium">Type</th>
+                <th class="px-4 py-3 text-left font-medium">Fuel</th>
+                <th class="px-4 py-3 text-left font-medium">Mileage</th>
+                <th class="px-4 py-3 text-left font-medium">Status</th>
+                <th class="px-4 py-3 text-right font-medium">Actions</th>
+            </tr>
+            </thead>
+            <tbody class="divide-y divide-white/10 bg-slate-950/40">
+            <tr class="table-row" th:each="vehicle : ${vehiclesPage.content}">
+                <td class="px-4 py-3 text-slate-100">
+                    <div class="font-medium" th:text="${vehicle.vehicleNumber}">ABC-1234</div>
+                    <div class="text-xs text-slate-500" th:text="${vehicle.brand + ' ' + vehicle.model + ' (' + vehicle.year + ')'}">Toyota Prius</div>
+                </td>
+                <td class="px-4 py-3 text-slate-300" th:text="${vehicle.type}">Sedan</td>
+                <td class="px-4 py-3 text-slate-300" th:text="${vehicle.fuelType}">PETROL</td>
+                <td class="px-4 py-3 text-slate-300" th:text="${#numbers.formatInteger(vehicle.mileage, 0, 'COMMA') + ' km'}">12,000 km</td>
+                <td class="px-4 py-3">
+                    <span class="badge"
+                          th:classappend="${vehicle.status.name() == 'ACTIVE'} ? ' badge-active' : (${vehicle.status.name() == 'IN_SERVICE'} ? ' badge-pending' : (${vehicle.status.name() == 'OUT_OF_SERVICE'} ? ' badge-suspended' : ' badge-deleted'))"
+                          th:text="${vehicle.status}">ACTIVE</span>
+                </td>
+                <td class="px-4 py-3">
+                    <div class="flex flex-wrap justify-end gap-2">
+                        <a class="action-button bg-white/5 text-slate-200 hover:bg-white/10" th:href="@{/vehicles/{id}(id=${vehicle.id})}">
+                            <i data-lucide="eye" class="h-4 w-4"></i>View
+                        </a>
+                        <a class="action-button bg-white/5 text-slate-200 hover:bg-white/10" th:href="@{/vehicles/{id}/edit(id=${vehicle.id})}">
+                            <i data-lucide="square-pen" class="h-4 w-4"></i>Edit
+                        </a>
+                        <form th:action="@{/vehicles/{id}/delete(id=${vehicle.id})}" method="post">
+                            <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
+                            <button class="action-button bg-rose-500/15 text-rose-200 hover:bg-rose-500/25" type="submit">
+                                <i data-lucide="trash-2" class="h-4 w-4"></i>Archive
+                            </button>
+                        </form>
+                    </div>
+                </td>
+            </tr>
+            <tr th:if="${vehiclesPage.totalElements == 0}">
+                <td class="px-4 py-6 text-slate-400" colspan="6">No matching vehicles found.</td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <div class="mt-5 flex flex-col gap-3 text-sm text-slate-400 sm:flex-row sm:items-center sm:justify-between">
+        <p>Page <span th:text="${vehiclesPage.number + 1}">1</span> of <span th:text="${vehiclesPage.totalPages > 0 ? vehiclesPage.totalPages : 1}">1</span></p>
+        <div class="flex gap-2">
+            <a th:if="${vehiclesPage.hasPrevious()}" class="action-button bg-white/5 text-slate-200 hover:bg-white/10"
+               th:href="@{/vehicles(page=${vehiclesPage.number - 1}, q=${keyword}, status=${selectedStatus})}">
+                <i data-lucide="chevron-left" class="h-4 w-4"></i>Prev
+            </a>
+            <a th:if="${vehiclesPage.hasNext()}" class="action-button bg-white/5 text-slate-200 hover:bg-white/10"
+               th:href="@{/vehicles(page=${vehiclesPage.number + 1}, q=${keyword}, status=${selectedStatus})}">
+                Next<i data-lucide="chevron-right" class="h-4 w-4"></i>
+            </a>
+        </div>
+    </div>
+</section>
+</html>

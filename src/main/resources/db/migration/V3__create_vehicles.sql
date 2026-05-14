@@ -1,0 +1,20 @@
+create table vehicles (
+    id bigint not null auto_increment,
+    vehicle_number varchar(30) not null,
+    model varchar(100) not null,
+    type varchar(60) not null,
+    brand varchar(80) not null,
+    fuel_type varchar(20) not null,
+    manufacture_year int not null,
+    mileage int not null,
+    status varchar(30) not null,
+    notes varchar(1000),
+    created_at datetime(6) not null,
+    updated_at datetime(6) not null,
+    deleted_at datetime(6),
+    primary key (id),
+    unique key uk_vehicles_vehicle_number (vehicle_number),
+    key idx_vehicles_status (status),
+    key idx_vehicles_brand_model (brand, model),
+    key idx_vehicles_created_at (created_at)
+) engine=InnoDB;
