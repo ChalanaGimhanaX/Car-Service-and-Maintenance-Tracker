@@ -11,6 +11,8 @@ import jakarta.validation.constraints.Size;
 
 public class VehicleForm {
 
+    private Long ownerId;
+
     @NotBlank(message = "Vehicle number is required.")
     @Size(max = 30, message = "Vehicle number must be 30 characters or fewer.")
     @Pattern(regexp = "^[A-Za-z0-9 -]+$", message = "Vehicle number may only contain letters, numbers, spaces, and hyphens.")
@@ -45,6 +47,14 @@ public class VehicleForm {
 
     @Size(max = 1000, message = "Notes must be 1000 characters or fewer.")
     private String notes;
+
+    public Long getOwnerId() {
+        return ownerId;
+    }
+
+    public void setOwnerId(Long ownerId) {
+        this.ownerId = ownerId;
+    }
 
     public String getVehicleNumber() {
         return vehicleNumber;

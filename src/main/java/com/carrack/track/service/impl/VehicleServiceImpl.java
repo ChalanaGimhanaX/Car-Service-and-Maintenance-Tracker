@@ -1,9 +1,13 @@
 package com.carrack.track.service.impl;
 
 import com.carrack.track.dto.VehicleForm;
+import com.carrack.track.entity.AppUser;
 import com.carrack.track.entity.Vehicle;
 import com.carrack.track.enums.AuditAction;
+import com.carrack.track.enums.AccountStatus;
+import com.carrack.track.enums.Role;
 import com.carrack.track.enums.VehicleStatus;
+import com.carrack.track.repository.AppUserRepository;
 import com.carrack.track.repository.VehicleRepository;
 import com.carrack.track.service.AuditService;
 import com.carrack.track.service.VehicleService;
@@ -18,16 +22,21 @@ import org.springframework.util.StringUtils;
 public class VehicleServiceImpl implements VehicleService {
 
     private final VehicleRepository vehicleRepository;
+    private final AppUserRepository userRepository;
     private final AuditService auditService;
 
-    public VehicleServiceImpl(VehicleRepository vehicleRepository, AuditService auditService) {
+    public VehicleServiceImpl(VehicleRepository vehicleRepository, AppUserRepository userRepository, AuditService auditService) {
         this.vehicleRepository = vehicleRepository;
+        this.userRepository = userRepository;
         this.auditService = auditService;
     }
 
     @Override
-    public Page<Vehicle> searchVehicles(String keyword, String status, Pageable pageable) {
+    public Page<Vehicle> searchVehicles(String keyword, String status, AppUser currentUser, Pageable pageable) {
         Specification<Vehicle> spec = Specification.where((root, query, cb) -> cb.notEqual(root.get("status"), VehicleStatus.DELETED));
+        if (!isAdmin(currentUser)) {
+            spec = spec.and((root, query, cb) -> cb.equal(root.get("owner").get("id"), currentUser.getId()));
+        }
 
         if (StringUtils.hasText(keyword)) {
             String pattern = "%" + keyword.trim().toLowerCase() + "%";
@@ -35,7 +44,9 @@ public class VehicleServiceImpl implements VehicleService {
                     cb.like(cb.lower(root.get("vehicleNumber")), pattern),
                     cb.like(cb.lower(root.get("brand")), pattern),
                     cb.like(cb.lower(root.get("model")), pattern),
-                    cb.like(cb.lower(root.get("type")), pattern)
+                    cb.like(cb.lower(root.get("type")), pattern),
+                    cb.like(cb.lower(root.get("owner").get("fullName")), pattern),
+                    cb.like(cb.lower(root.get("owner").get("email")), pattern)
             ));
         }
 
@@ -53,17 +64,17 @@ public class VehicleServiceImpl implements VehicleService {
     }
 
     @Override
-    public Vehicle getRequiredVehicle(Long id) {
+    public Vehicle getRequiredVehicle(Long id, AppUser currentUser) {
         Vehicle vehicle = vehicleRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Vehicle not found."));
-        if (vehicle.getStatus() == VehicleStatus.DELETED) {
+        if (vehicle.getStatus() == VehicleStatus.DELETED || !canAccess(vehicle, currentUser)) {
             throw new IllegalArgumentException("Vehicle not found.");
         }
         return vehicle;
     }
 
     @Override
-    public Vehicle createVehicle(VehicleForm form, String actorEmail) {
+    public Vehicle createVehicle(VehicleForm form, AppUser currentUser, String actorEmail) {
         String vehicleNumber = normalizeVehicleNumber(form.getVehicleNumber());
         if (vehicleRepository.existsByVehicleNumberIgnoreCase(vehicleNumber)) {
             throw new IllegalStateException("Vehicle number already exists.");
@@ -71,6 +82,7 @@ public class VehicleServiceImpl implements VehicleService {
 
         Vehicle vehicle = new Vehicle();
         applyForm(vehicle, form);
+        vehicle.setOwner(resolveOwner(form, currentUser));
         vehicle.setVehicleNumber(vehicleNumber);
         Vehicle saved = vehicleRepository.save(vehicle);
         auditService.log(AuditAction.VEHICLE_CREATED, actorEmail, saved.getVehicleNumber(), "Vehicle record created.");
@@ -78,8 +90,8 @@ public class VehicleServiceImpl implements VehicleService {
     }
 
     @Override
-    public Vehicle updateVehicle(Long id, VehicleForm form, String actorEmail) {
-        Vehicle vehicle = getRequiredVehicle(id);
+    public Vehicle updateVehicle(Long id, VehicleForm form, AppUser currentUser, String actorEmail) {
+        Vehicle vehicle = getRequiredVehicle(id, currentUser);
         String vehicleNumber = normalizeVehicleNumber(form.getVehicleNumber());
         Vehicle existing = vehicleRepository.findByVehicleNumberIgnoreCase(vehicleNumber).orElse(null);
         if (existing != null && !existing.getId().equals(id)) {
@@ -87,6 +99,7 @@ public class VehicleServiceImpl implements VehicleService {
         }
 
         applyForm(vehicle, form);
+        vehicle.setOwner(resolveOwner(form, currentUser));
         vehicle.setVehicleNumber(vehicleNumber);
         if (vehicle.getStatus() == VehicleStatus.DELETED) {
             vehicle.setDeletedAt(LocalDateTime.now());
@@ -100,8 +113,8 @@ public class VehicleServiceImpl implements VehicleService {
     }
 
     @Override
-    public void deleteVehicle(Long id, String actorEmail) {
-        Vehicle vehicle = getRequiredVehicle(id);
+    public void deleteVehicle(Long id, AppUser currentUser, String actorEmail) {
+        Vehicle vehicle = getRequiredVehicle(id, currentUser);
         vehicle.setStatus(VehicleStatus.DELETED);
         vehicle.setDeletedAt(LocalDateTime.now());
         vehicleRepository.save(vehicle);
@@ -121,5 +134,28 @@ public class VehicleServiceImpl implements VehicleService {
 
     private String normalizeVehicleNumber(String vehicleNumber) {
         return vehicleNumber.trim().replaceAll("\\s+", " ").toUpperCase();
+    }
+
+    private AppUser resolveOwner(VehicleForm form, AppUser currentUser) {
+        if (!isAdmin(currentUser)) {
+            return currentUser;
+        }
+        if (form.getOwnerId() == null) {
+            throw new IllegalStateException("Vehicle owner is required.");
+        }
+        AppUser owner = userRepository.findById(form.getOwnerId())
+                .orElseThrow(() -> new IllegalArgumentException("Selected owner was not found."));
+        if (owner.getRole() != Role.CLIENT || owner.getStatus() == AccountStatus.DELETED) {
+            throw new IllegalStateException("Vehicle owner must be a client account.");
+        }
+        return owner;
+    }
+
+    private boolean canAccess(Vehicle vehicle, AppUser currentUser) {
+        return isAdmin(currentUser) || vehicle.getOwner().getId().equals(currentUser.getId());
+    }
+
+    private boolean isAdmin(AppUser user) {
+        return user != null && user.getRole() == Role.ADMIN;
     }
 }
