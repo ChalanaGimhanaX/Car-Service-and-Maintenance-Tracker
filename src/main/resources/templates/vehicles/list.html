@@ -42,6 +42,7 @@
             <thead class="bg-slate-900/90 text-slate-400">
             <tr>
                 <th class="px-4 py-3 text-left font-medium">Vehicle</th>
+                <th class="px-4 py-3 text-left font-medium">Owner</th>
                 <th class="px-4 py-3 text-left font-medium">Type</th>
                 <th class="px-4 py-3 text-left font-medium">Fuel</th>
                 <th class="px-4 py-3 text-left font-medium">Mileage</th>
@@ -54,6 +55,10 @@
                 <td class="px-4 py-3 text-slate-100">
                     <div class="font-medium" th:text="${vehicle.vehicleNumber}">ABC-1234</div>
                     <div class="text-xs text-slate-500" th:text="${vehicle.brand + ' ' + vehicle.model + ' (' + vehicle.year + ')'}">Toyota Prius</div>
+                </td>
+                <td class="px-4 py-3 text-slate-300">
+                    <div th:text="${vehicle.owner.fullName}">Client Name</div>
+                    <div class="text-xs text-slate-500" th:text="${vehicle.owner.email}">client@example.com</div>
                 </td>
                 <td class="px-4 py-3 text-slate-300" th:text="${vehicle.type}">Sedan</td>
                 <td class="px-4 py-3 text-slate-300" th:text="${vehicle.fuelType}">PETROL</td>
@@ -81,7 +86,7 @@
                 </td>
             </tr>
             <tr th:if="${vehiclesPage.totalElements == 0}">
-                <td class="px-4 py-6 text-slate-400" colspan="6">No matching vehicles found.</td>
+                <td class="px-4 py-6 text-slate-400" colspan="7">No matching vehicles found.</td>
             </tr>
             </tbody>
         </table>

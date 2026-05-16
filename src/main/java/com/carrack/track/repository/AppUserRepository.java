@@ -26,4 +26,6 @@ public interface AppUserRepository extends JpaRepository<AppUser, Long>, JpaSpec
     long countByRoleAndStatusNot(Role role, AccountStatus status);
 
     List<AppUser> findTop5ByStatusNotOrderByCreatedAtDesc(AccountStatus status);
+
+    List<AppUser> findByRoleAndStatusNotOrderByFullNameAsc(Role role, AccountStatus status);
 }

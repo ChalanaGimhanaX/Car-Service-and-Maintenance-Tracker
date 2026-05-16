@@ -13,6 +13,13 @@
         <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
 
         <div class="grid gap-4 md:grid-cols-2">
+            <div th:if="${canSelectOwner}">
+                <label class="mb-2 block text-sm font-medium text-slate-300" for="ownerId">Owner</label>
+                <select class="form-input" id="ownerId" th:field="*{ownerId}">
+                    <option value="">Select client owner</option>
+                    <option th:each="owner : ${clientOwners}" th:value="${owner.id}" th:text="${owner.fullName + ' - ' + owner.email}"></option>
+                </select>
+            </div>
             <div>
                 <label class="mb-2 block text-sm font-medium text-slate-300" for="vehicleNumber">Vehicle number</label>
                 <input class="form-input" id="vehicleNumber" type="text" th:field="*{vehicleNumber}" placeholder="WP ABC-1234">

@@ -11,6 +11,7 @@ import com.carrack.track.repository.AppUserRepository;
 import com.carrack.track.service.AuditService;
 import com.carrack.track.service.UserService;
 import java.time.LocalDateTime;
+import java.util.List;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
@@ -83,6 +84,11 @@ public class UserServiceImpl implements UserService {
         }
 
         return userRepository.findAll(spec, pageable);
+    }
+
+    @Override
+    public List<AppUser> listAssignableClients() {
+        return userRepository.findByRoleAndStatusNotOrderByFullNameAsc(Role.CLIENT, AccountStatus.DELETED);
     }
 
     @Override
