@@ -10,6 +10,9 @@ public record DashboardSnapshot(
         long adminUsers,
         long suspendedUsers,
         long newUsersThisMonth,
+        long totalVehicles,
+        long totalServices,
+        long totalReminders,
         List<AppUser> recentUsers,
         List<AuditLog> recentLogs
 ) {

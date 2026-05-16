@@ -4,8 +4,8 @@
 <section>
     <div class="mb-8 flex flex-col gap-2">
         <p class="text-sm uppercase tracking-[0.22em] text-emerald-300">Operations overview</p>
-        <h1 class="text-3xl font-semibold text-white">User management dashboard</h1>
-        <p class="text-sm text-slate-400">Real MySQL data, role separation, and audit records for viva demonstration.</p>
+        <h1 class="text-3xl font-semibold text-white">Car service system dashboard</h1>
+        <p class="text-sm text-slate-400">Live MySQL data across users, vehicles, service jobs, and maintenance reminders.</p>
     </div>
 
     <div class="grid gap-4 md:grid-cols-2 xl:grid-cols-5">
@@ -28,6 +28,21 @@
         <div class="rounded-md border soft-border glass-panel p-5">
             <p class="text-xs uppercase tracking-[0.18em] text-slate-500">New this month</p>
             <p class="mt-3 text-3xl font-semibold text-fuchsia-300" th:text="${snapshot.newUsersThisMonth}">0</p>
+        </div>
+    </div>
+
+    <div class="mt-4 grid gap-4 md:grid-cols-3">
+        <div class="rounded-md border soft-border glass-panel p-5">
+            <p class="text-xs uppercase tracking-[0.18em] text-slate-500">Vehicles</p>
+            <p class="mt-3 text-3xl font-semibold text-white" th:text="${snapshot.totalVehicles}">0</p>
+        </div>
+        <div class="rounded-md border soft-border glass-panel p-5">
+            <p class="text-xs uppercase tracking-[0.18em] text-slate-500">Service jobs</p>
+            <p class="mt-3 text-3xl font-semibold text-sky-300" th:text="${snapshot.totalServices}">0</p>
+        </div>
+        <div class="rounded-md border soft-border glass-panel p-5">
+            <p class="text-xs uppercase tracking-[0.18em] text-slate-500">Reminders</p>
+            <p class="mt-3 text-3xl font-semibold text-amber-300" th:text="${snapshot.totalReminders}">0</p>
         </div>
     </div>
 
@@ -92,19 +107,19 @@
 
     <div class="mt-8 grid gap-4 md:grid-cols-3">
         <a class="rounded-md border soft-border glass-panel p-5 hover:border-emerald-400/30" th:href="@{/vehicles}">
-            <p class="text-xs uppercase tracking-[0.18em] text-slate-500">Other team</p>
+            <p class="text-xs uppercase tracking-[0.18em] text-slate-500">Fleet module</p>
             <h3 class="mt-2 text-lg font-semibold text-white">Vehicle management</h3>
-            <p class="mt-1 text-sm text-slate-400">Reserved placeholder for the vehicle module.</p>
+            <p class="mt-1 text-sm text-slate-400">Manage vehicle records, statuses, and technical notes.</p>
         </a>
         <a class="rounded-md border soft-border glass-panel p-5 hover:border-emerald-400/30" th:href="@{/services}">
-            <p class="text-xs uppercase tracking-[0.18em] text-slate-500">Other team</p>
+            <p class="text-xs uppercase tracking-[0.18em] text-slate-500">Workshop module</p>
             <h3 class="mt-2 text-lg font-semibold text-white">Service management</h3>
-            <p class="mt-1 text-sm text-slate-400">Reserved placeholder for the service module.</p>
+            <p class="mt-1 text-sm text-slate-400">Create and update workshop service jobs with costs and technicians.</p>
         </a>
         <a class="rounded-md border soft-border glass-panel p-5 hover:border-emerald-400/30" th:href="@{/maintenance}">
-            <p class="text-xs uppercase tracking-[0.18em] text-slate-500">Other team</p>
+            <p class="text-xs uppercase tracking-[0.18em] text-slate-500">Follow-up module</p>
             <h3 class="mt-2 text-lg font-semibold text-white">Maintenance reminders</h3>
-            <p class="mt-1 text-sm text-slate-400">Reserved placeholder for the maintenance module.</p>
+            <p class="mt-1 text-sm text-slate-400">Schedule future follow-ups and track upcoming customer reminders.</p>
         </a>
     </div>
 </section>

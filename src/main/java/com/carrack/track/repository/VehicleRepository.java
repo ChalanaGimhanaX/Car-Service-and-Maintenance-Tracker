@@ -10,4 +10,6 @@ public interface VehicleRepository extends JpaRepository<Vehicle, Long>, JpaSpec
     Optional<Vehicle> findByVehicleNumberIgnoreCase(String vehicleNumber);
 
     boolean existsByVehicleNumberIgnoreCase(String vehicleNumber);
+
+    long countByDeletedAtIsNull();
 }

@@ -1,0 +1,20 @@
+create table service_records (
+    id bigint not null auto_increment,
+    service_code varchar(30) not null,
+    vehicle_number varchar(30) not null,
+    customer_name varchar(120) not null,
+    service_type varchar(80) not null,
+    service_date date not null,
+    cost decimal(10,2) not null,
+    technician_name varchar(120) not null,
+    status varchar(20) not null,
+    notes varchar(1000),
+    created_at datetime(6) not null,
+    updated_at datetime(6) not null,
+    deleted_at datetime(6),
+    primary key (id),
+    unique key uk_service_records_service_code (service_code),
+    key idx_service_records_vehicle_number (vehicle_number),
+    key idx_service_records_status (status),
+    key idx_service_records_service_date (service_date)
+) engine=InnoDB;

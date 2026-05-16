@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{layouts/base :: layout('Service Management', ~{::section})}">
+<section>
+    <div class="mb-6 flex flex-col gap-3 lg:flex-row lg:items-end lg:justify-between">
+        <div>
+            <p class="text-sm uppercase tracking-[0.22em] text-emerald-300">Workshop jobs</p>
+            <h1 class="text-3xl font-semibold text-white">Service management</h1>
+            <p class="text-sm text-slate-400">Track service jobs, technicians, dates, and payment values.</p>
+        </div>
+        <a class="action-button bg-emerald-500 text-slate-950 hover:bg-emerald-400" th:href="@{/services/new}">
+            <i data-lucide="plus" class="h-4 w-4"></i>Add service
+        </a>
+    </div>
+
+    <form class="rounded-md border soft-border glass-panel p-4" th:action="@{/services}" method="get">
+        <div class="grid gap-3 lg:grid-cols-[1.4fr_0.8fr_auto]">
+            <div>
+                <label class="mb-2 block text-xs uppercase tracking-[0.18em] text-slate-500">Search</label>
+                <input class="form-input" type="text" name="q" th:value="${keyword}" placeholder="Search by code, vehicle, customer, or technician">
+            </div>
+            <div>
+                <label class="mb-2 block text-xs uppercase tracking-[0.18em] text-slate-500">Status</label>
+                <select class="form-input" name="status">
+                    <option value="">All statuses</option>
+                    <option th:each="status : ${statusValues}" th:value="${status}" th:text="${status}" th:selected="${selectedStatus == status.name()}"></option>
+                </select>
+            </div>
+            <div class="flex items-end gap-2">
+                <button class="action-button bg-emerald-500 text-slate-950 hover:bg-emerald-400" type="submit">
+                    <i data-lucide="search" class="h-4 w-4"></i>Filter
+                </button>
+                <a class="action-button bg-white/5 text-slate-200 hover:bg-white/10" th:href="@{/services}">
+                    <i data-lucide="rotate-ccw" class="h-4 w-4"></i>Reset
+                </a>
+            </div>
+        </div>
+    </form>
+
+    <div class="mt-6 overflow-hidden rounded-md border soft-border glass-panel">
+        <table class="min-w-full divide-y divide-white/10 text-sm">
+            <thead class="bg-slate-900/90 text-slate-400">
+            <tr>
+                <th class="px-4 py-3 text-left font-medium">Job</th>
+                <th class="px-4 py-3 text-left font-medium">Service type</th>
+                <th class="px-4 py-3 text-left font-medium">Date</th>
+                <th class="px-4 py-3 text-left font-medium">Cost</th>
+                <th class="px-4 py-3 text-left font-medium">Status</th>
+                <th class="px-4 py-3 text-right font-medium">Actions</th>
+            </tr>
+            </thead>
+            <tbody class="divide-y divide-white/10 bg-slate-950/40">
+            <tr class="table-row" th:each="service : ${servicesPage.content}">
+                <td class="px-4 py-3 text-slate-100">
+                    <div class="font-medium" th:text="${service.serviceCode}">SRV-1001</div>
+                    <div class="text-xs text-slate-500" th:text="${service.vehicleNumber + ' - ' + service.customerName}">WP ABC-1234 - Customer</div>
+                </td>
+                <td class="px-4 py-3 text-slate-300" th:text="${service.serviceType}">Full Service</td>
+                <td class="px-4 py-3 text-slate-300" th:text="${#temporals.format(service.serviceDate, 'dd MMM yyyy')}">15 May 2026</td>
+                <td class="px-4 py-3 text-slate-300" th:text="${'Rs. ' + #numbers.formatDecimal(service.cost, 1, 'COMMA', 2, 'POINT')}">Rs. 10,000.00</td>
+                <td class="px-4 py-3">
+                    <span class="badge"
+                          th:classappend="${service.status.name() == 'COMPLETED'} ? ' badge-active' : (${service.status.name() == 'IN_PROGRESS'} ? ' badge-pending' : (${service.status.name() == 'PENDING'} ? ' badge-suspended' : ' badge-deleted'))"
+                          th:text="${service.status}">PENDING</span>
+                </td>
+                <td class="px-4 py-3">
+                    <div class="flex flex-wrap justify-end gap-2">
+                        <a class="action-button bg-white/5 text-slate-200 hover:bg-white/10" th:href="@{/services/{id}(id=${service.id})}">
+                            <i data-lucide="eye" class="h-4 w-4"></i>View
+                        </a>
+                        <a class="action-button bg-white/5 text-slate-200 hover:bg-white/10" th:href="@{/services/{id}/edit(id=${service.id})}">
+                            <i data-lucide="square-pen" class="h-4 w-4"></i>Edit
+                        </a>
+                        <form th:action="@{/services/{id}/delete(id=${service.id})}" method="post">
+                            <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
+                            <button class="action-button bg-rose-500/15 text-rose-200 hover:bg-rose-500/25" type="submit">
+                                <i data-lucide="trash-2" class="h-4 w-4"></i>Archive
+                            </button>
+                        </form>
+                    </div>
+                </td>
+            </tr>
+            <tr th:if="${servicesPage.totalElements == 0}">
+                <td class="px-4 py-6 text-slate-400" colspan="6">No matching service records found.</td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <div class="mt-5 flex flex-col gap-3 text-sm text-slate-400 sm:flex-row sm:items-center sm:justify-between">
+        <p>Page <span th:text="${servicesPage.number + 1}">1</span> of <span th:text="${servicesPage.totalPages > 0 ? servicesPage.totalPages : 1}">1</span></p>
+        <div class="flex gap-2">
+            <a th:if="${servicesPage.hasPrevious()}" class="action-button bg-white/5 text-slate-200 hover:bg-white/10"
+               th:href="@{/services(page=${servicesPage.number - 1}, q=${keyword}, status=${selectedStatus})}">
+                <i data-lucide="chevron-left" class="h-4 w-4"></i>Prev
+            </a>
+            <a th:if="${servicesPage.hasNext()}" class="action-button bg-white/5 text-slate-200 hover:bg-white/10"
+               th:href="@{/services(page=${servicesPage.number + 1}, q=${keyword}, status=${selectedStatus})}">
+                Next<i data-lucide="chevron-right" class="h-4 w-4"></i>
+            </a>
+        </div>
+    </div>
+</section>
+</html>

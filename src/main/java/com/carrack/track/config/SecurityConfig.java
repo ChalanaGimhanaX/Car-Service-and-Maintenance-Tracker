@@ -50,7 +50,6 @@ public class SecurityConfig {
         http.authenticationProvider(provider);
         http.authorizeHttpRequests(auth -> auth
                 .requestMatchers("/css/**", "/js/**", "/images/**", "/register", "/login", "/error").permitAll()
-                .requestMatchers("/placeholder/**").permitAll()
                 .anyRequest().authenticated()
         );
         http.formLogin(form -> form

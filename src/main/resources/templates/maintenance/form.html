@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{layouts/base :: layout('Maintenance Form', ~{::section})}">
+<section>
+    <div class="mb-6">
+        <p class="text-sm uppercase tracking-[0.22em] text-emerald-300">Follow-up planner</p>
+        <h1 class="text-3xl font-semibold text-white" th:text="${formMode == 'edit' ? 'Edit maintenance reminder' : 'Add maintenance reminder'}">Add maintenance reminder</h1>
+        <p class="text-sm text-slate-400">Keep the next follow-up date and service note ready for each vehicle.</p>
+    </div>
+
+    <form class="rounded-md border soft-border glass-panel p-5" th:object="${maintenanceForm}"
+          th:action="${formMode == 'edit'} ? @{/maintenance/{id}/edit(id=${reminderId})} : @{/maintenance}" method="post">
+        <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
+
+        <div class="grid gap-4 md:grid-cols-2">
+            <div>
+                <label class="mb-2 block text-sm font-medium text-slate-300" for="vehicleNumber">Vehicle number</label>
+                <input class="form-input" id="vehicleNumber" type="text" th:field="*{vehicleNumber}" placeholder="WP ABC-1234">
+                <p class="mt-1 text-xs text-rose-300" th:if="${#fields.hasErrors('vehicleNumber')}" th:errors="*{vehicleNumber}"></p>
+            </div>
+            <div>
+                <label class="mb-2 block text-sm font-medium text-slate-300" for="title">Reminder title</label>
+                <input class="form-input" id="title" type="text" th:field="*{title}" placeholder="Next oil change">
+                <p class="mt-1 text-xs text-rose-300" th:if="${#fields.hasErrors('title')}" th:errors="*{title}"></p>
+            </div>
+            <div>
+                <label class="mb-2 block text-sm font-medium text-slate-300" for="reminderDate">Reminder date</label>
+                <input class="form-input" id="reminderDate" type="date" th:field="*{reminderDate}">
+                <p class="mt-1 text-xs text-rose-300" th:if="${#fields.hasErrors('reminderDate')}" th:errors="*{reminderDate}"></p>
+            </div>
+            <div>
+                <label class="mb-2 block text-sm font-medium text-slate-300" for="lastServiceDate">Last service date</label>
+                <input class="form-input" id="lastServiceDate" type="date" th:field="*{lastServiceDate}">
+                <p class="mt-1 text-xs text-rose-300" th:if="${#fields.hasErrors('lastServiceDate')}" th:errors="*{lastServiceDate}"></p>
+            </div>
+            <div>
+                <label class="mb-2 block text-sm font-medium text-slate-300" for="mileageInterval">Mileage interval</label>
+                <input class="form-input" id="mileageInterval" type="number" min="0" th:field="*{mileageInterval}" placeholder="5000">
+                <p class="mt-1 text-xs text-rose-300" th:if="${#fields.hasErrors('mileageInterval')}" th:errors="*{mileageInterval}"></p>
+            </div>
+            <div>
+                <label class="mb-2 block text-sm font-medium text-slate-300" for="status">Status</label>
+                <select class="form-input" id="status" th:field="*{status}">
+                    <option th:each="status : ${statusValues}" th:value="${status}" th:text="${status}"></option>
+                </select>
+                <p class="mt-1 text-xs text-rose-300" th:if="${#fields.hasErrors('status')}" th:errors="*{status}"></p>
+            </div>
+        </div>
+
+        <div class="mt-4">
+            <label class="mb-2 block text-sm font-medium text-slate-300" for="notes">Notes</label>
+            <textarea class="form-input min-h-32" id="notes" th:field="*{notes}" placeholder="Reminder message, follow-up note, or inspection details"></textarea>
+            <p class="mt-1 text-xs text-rose-300" th:if="${#fields.hasErrors('notes')}" th:errors="*{notes}"></p>
+        </div>
+
+        <div class="mt-5 flex flex-wrap gap-3">
+            <button class="action-button bg-emerald-500 text-slate-950 hover:bg-emerald-400" type="submit">
+                <i data-lucide="save" class="h-4 w-4"></i><span th:text="${formMode == 'edit' ? 'Save changes' : 'Create reminder'}">Save</span>
+            </button>
+            <a class="action-button bg-white/5 text-slate-200 hover:bg-white/10" th:href="@{/maintenance}">
+                <i data-lucide="arrow-left" class="h-4 w-4"></i>Back to list
+            </a>
+        </div>
+    </form>
+</section>
+</html>

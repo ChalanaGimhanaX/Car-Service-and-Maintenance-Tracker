@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{layouts/base :: layout('Maintenance Reminders', ~{::section})}">
+<section>
+    <div class="mb-6 flex flex-col gap-3 lg:flex-row lg:items-end lg:justify-between">
+        <div>
+            <p class="text-sm uppercase tracking-[0.22em] text-emerald-300">Follow-up planner</p>
+            <h1 class="text-3xl font-semibold text-white">Maintenance reminders</h1>
+            <p class="text-sm text-slate-400">Track reminder dates, intervals, and follow-up notes for vehicles.</p>
+        </div>
+        <a class="action-button bg-emerald-500 text-slate-950 hover:bg-emerald-400" th:href="@{/maintenance/new}">
+            <i data-lucide="plus" class="h-4 w-4"></i>Add reminder
+        </a>
+    </div>
+
+    <form class="rounded-md border soft-border glass-panel p-4" th:action="@{/maintenance}" method="get">
+        <div class="grid gap-3 lg:grid-cols-[1.4fr_0.8fr_auto]">
+            <div>
+                <label class="mb-2 block text-xs uppercase tracking-[0.18em] text-slate-500">Search</label>
+                <input class="form-input" type="text" name="q" th:value="${keyword}" placeholder="Search by vehicle number or reminder title">
+            </div>
+            <div>
+                <label class="mb-2 block text-xs uppercase tracking-[0.18em] text-slate-500">Status</label>
+                <select class="form-input" name="status">
+                    <option value="">All statuses</option>
+                    <option th:each="status : ${statusValues}" th:value="${status}" th:text="${status}" th:selected="${selectedStatus == status.name()}"></option>
+                </select>
+            </div>
+            <div class="flex items-end gap-2">
+                <button class="action-button bg-emerald-500 text-slate-950 hover:bg-emerald-400" type="submit">
+                    <i data-lucide="search" class="h-4 w-4"></i>Filter
+                </button>
+                <a class="action-button bg-white/5 text-slate-200 hover:bg-white/10" th:href="@{/maintenance}">
+                    <i data-lucide="rotate-ccw" class="h-4 w-4"></i>Reset
+                </a>
+            </div>
+        </div>
+    </form>
+
+    <div class="mt-6 overflow-hidden rounded-md border soft-border glass-panel">
+        <table class="min-w-full divide-y divide-white/10 text-sm">
+            <thead class="bg-slate-900/90 text-slate-400">
+            <tr>
+                <th class="px-4 py-3 text-left font-medium">Reminder</th>
+                <th class="px-4 py-3 text-left font-medium">Date</th>
+                <th class="px-4 py-3 text-left font-medium">Mileage interval</th>
+                <th class="px-4 py-3 text-left font-medium">Status</th>
+                <th class="px-4 py-3 text-right font-medium">Actions</th>
+            </tr>
+            </thead>
+            <tbody class="divide-y divide-white/10 bg-slate-950/40">
+            <tr class="table-row" th:each="reminder : ${remindersPage.content}">
+                <td class="px-4 py-3 text-slate-100">
+                    <div class="font-medium" th:text="${reminder.title}">Next oil change</div>
+                    <div class="text-xs text-slate-500" th:text="${reminder.vehicleNumber}">WP ABC-1234</div>
+                </td>
+                <td class="px-4 py-3 text-slate-300" th:text="${#temporals.format(reminder.reminderDate, 'dd MMM yyyy')}">15 Jun 2026</td>
+                <td class="px-4 py-3 text-slate-300" th:text="${reminder.mileageInterval != null && reminder.mileageInterval > 0 ? #numbers.formatInteger(reminder.mileageInterval, 0, 'COMMA') + ' km' : '-'}">5,000 km</td>
+                <td class="px-4 py-3">
+                    <span class="badge"
+                          th:classappend="${reminder.status.name() == 'COMPLETED'} ? ' badge-active' : (${reminder.status.name() == 'DUE'} ? ' badge-suspended' : (${reminder.status.name() == 'UPCOMING'} ? ' badge-pending' : ' badge-deleted'))"
+                          th:text="${reminder.status}">UPCOMING</span>
+                </td>
+                <td class="px-4 py-3">
+                    <div class="flex flex-wrap justify-end gap-2">
+                        <a class="action-button bg-white/5 text-slate-200 hover:bg-white/10" th:href="@{/maintenance/{id}(id=${reminder.id})}">
+                            <i data-lucide="eye" class="h-4 w-4"></i>View
+                        </a>
+                        <a class="action-button bg-white/5 text-slate-200 hover:bg-white/10" th:href="@{/maintenance/{id}/edit(id=${reminder.id})}">
+                            <i data-lucide="square-pen" class="h-4 w-4"></i>Edit
+                        </a>
+                        <form th:action="@{/maintenance/{id}/delete(id=${reminder.id})}" method="post">
+                            <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
+                            <button class="action-button bg-rose-500/15 text-rose-200 hover:bg-rose-500/25" type="submit">
+                                <i data-lucide="trash-2" class="h-4 w-4"></i>Archive
+                            </button>
+                        </form>
+                    </div>
+                </td>
+            </tr>
+            <tr th:if="${remindersPage.totalElements == 0}">
+                <td class="px-4 py-6 text-slate-400" colspan="5">No matching reminders found.</td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <div class="mt-5 flex flex-col gap-3 text-sm text-slate-400 sm:flex-row sm:items-center sm:justify-between">
+        <p>Page <span th:text="${remindersPage.number + 1}">1</span> of <span th:text="${remindersPage.totalPages > 0 ? remindersPage.totalPages : 1}">1</span></p>
+        <div class="flex gap-2">
+            <a th:if="${remindersPage.hasPrevious()}" class="action-button bg-white/5 text-slate-200 hover:bg-white/10"
+               th:href="@{/maintenance(page=${remindersPage.number - 1}, q=${keyword}, status=${selectedStatus})}">
+                <i data-lucide="chevron-left" class="h-4 w-4"></i>Prev
+            </a>
+            <a th:if="${remindersPage.hasNext()}" class="action-button bg-white/5 text-slate-200 hover:bg-white/10"
+               th:href="@{/maintenance(page=${remindersPage.number + 1}, q=${keyword}, status=${selectedStatus})}">
+                Next<i data-lucide="chevron-right" class="h-4 w-4"></i>
+            </a>
+        </div>
+    </div>
+</section>
+</html>
