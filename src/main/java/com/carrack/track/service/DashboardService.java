@@ -1,8 +1,12 @@
 package com.carrack.track.service;
 
+import com.carrack.track.dto.ClientDashboardSnapshot;
 import com.carrack.track.dto.DashboardSnapshot;
+import com.carrack.track.entity.AppUser;
 
 public interface DashboardService {
 
-    DashboardSnapshot snapshot();
+    DashboardSnapshot adminSnapshot();
+
+    ClientDashboardSnapshot clientSnapshot(AppUser user);
 }

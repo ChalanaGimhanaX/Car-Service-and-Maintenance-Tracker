@@ -13,6 +13,7 @@ public record DashboardSnapshot(
         long totalVehicles,
         long totalServices,
         long totalReminders,
+        long totalInvoices,
         List<AppUser> recentUsers,
         List<AuditLog> recentLogs
 ) {

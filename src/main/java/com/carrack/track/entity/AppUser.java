@@ -14,15 +14,6 @@ import jakarta.persistence.PreUpdate;
 import jakarta.persistence.Table;
 import java.time.LocalDateTime;
 
-/**
- * Primary user entity persisted to the `app_users` table.
- *
- * Notes:
- * - Fields are simple Java properties mapped by JPA.
- * - `@PrePersist`/`@PreUpdate` hooks ensure timestamps and defaults
- *   are set automatically before saving.
- * - `passwordHash` stores the encoded password (do not store plaintext).
- */
 @Entity
 @Table(name = "app_users")
 public class AppUser {
@@ -40,18 +31,13 @@ public class AppUser {
     @Column(length = 30)
     private String phone;
 
-    /**
-     * Stores a BCrypt-hashed password. Use `PasswordEncoder` to create this.
-     */
     @Column(name = "password_hash", nullable = false, length = 255)
     private String passwordHash;
 
-    /** Role drives authorization checks; stored as a string enum. */
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 20)
     private Role role;
 
-    /** Account lifecycle status (ACTIVE, SUSPENDED, DELETED). */
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 20)
     private AccountStatus status;
@@ -68,10 +54,6 @@ public class AppUser {
     @Column(name = "deleted_at")
     private LocalDateTime deletedAt;
 
-    /**
-     * Lifecycle callback that runs before a new entity is persisted.
-     * Sets sensible defaults for timestamps, role and status.
-     */
     @PrePersist
     void onCreate() {
         LocalDateTime now = LocalDateTime.now();
@@ -87,7 +69,6 @@ public class AppUser {
         }
     }
 
-    /** Updates `updatedAt` timestamp automatically before updates. */
     @PreUpdate
     void onUpdate() {
         updatedAt = LocalDateTime.now();

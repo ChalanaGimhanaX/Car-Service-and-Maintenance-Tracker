@@ -9,6 +9,10 @@
             <p class="text-sm text-slate-400">Full details of this service entry.</p>
         </div>
         <div class="flex flex-wrap gap-2">
+            <a class="action-button bg-emerald-500 text-slate-950 hover:bg-emerald-400"
+               th:href="@{/invoices/new(serviceRecordId=${record.id})}">
+                <i data-lucide="receipt" class="h-4 w-4"></i>Create invoice
+            </a>
             <a class="action-button bg-white/5 text-slate-200 hover:bg-white/10"
                th:href="@{/services/{id}/edit(id=${record.id})}">
                 <i data-lucide="pencil" class="h-4 w-4"></i>Edit

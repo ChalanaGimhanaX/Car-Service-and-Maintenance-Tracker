@@ -10,7 +10,6 @@ import com.carrack.track.service.MaintenanceReminderService;
 import java.time.LocalDateTime;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
@@ -27,27 +26,16 @@ public class MaintenanceReminderServiceImpl implements MaintenanceReminderServic
 
     @Override
     public Page<MaintenanceReminder> searchReminders(String keyword, String status, Pageable pageable) {
-        Specification<MaintenanceReminder> spec = Specification.where((root, query, cb) -> cb.isNull(root.get("deletedAt")));
-
-        if (StringUtils.hasText(keyword)) {
-            String pattern = "%" + keyword.trim().toLowerCase() + "%";
-            spec = spec.and((root, query, cb) -> cb.or(
-                    cb.like(cb.lower(root.get("vehicleNumber")), pattern),
-                    cb.like(cb.lower(root.get("title")), pattern)
-            ));
-        }
-
+        String cleanedKeyword = StringUtils.hasText(keyword) ? keyword.trim() : null;
+        ReminderStatus parsedStatus = null;
         if (StringUtils.hasText(status)) {
-            ReminderStatus parsed;
             try {
-                parsed = ReminderStatus.valueOf(status.trim().toUpperCase());
+                parsedStatus = ReminderStatus.valueOf(status.trim().toUpperCase());
             } catch (IllegalArgumentException ex) {
                 throw new IllegalArgumentException("Invalid reminder status.");
             }
-            spec = spec.and((root, query, cb) -> cb.equal(root.get("status"), parsed));
         }
-
-        return maintenanceReminderRepository.findAll(spec, pageable);
+        return maintenanceReminderRepository.searchReminders(cleanedKeyword, parsedStatus, pageable);
     }
 
     @Override

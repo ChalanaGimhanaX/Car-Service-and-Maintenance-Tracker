@@ -10,3 +10,5 @@ out/
 *.pdf
 Thumbs.db
 .DS_Store
+.localdb/
+.tools/

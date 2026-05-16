@@ -1,0 +1,23 @@
+spring:
+  datasource:
+    url: jdbc:h2:file:./.localdb/cartrack;MODE=MySQL;DATABASE_TO_LOWER=TRUE
+    driver-class-name: org.h2.Driver
+    username: sa
+    password:
+  jpa:
+    hibernate:
+      ddl-auto: update
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.H2Dialect
+    show-sql: false
+  flyway:
+    enabled: false
+  h2:
+    console:
+      enabled: true
+
+logging:
+  level:
+    org.springframework.security: info
+    org.hibernate.SQL: info

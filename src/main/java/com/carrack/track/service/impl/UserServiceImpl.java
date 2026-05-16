@@ -14,7 +14,6 @@ import java.time.LocalDateTime;
 import java.util.List;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.jpa.domain.Specification;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
@@ -67,23 +66,11 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public Page<AppUser> searchUsers(String keyword, String status, Pageable pageable) {
-        Specification<AppUser> spec = Specification.where((root, query, cb) -> cb.notEqual(root.get("status"), AccountStatus.DELETED));
-
-        if (StringUtils.hasText(keyword)) {
-            String pattern = "%" + keyword.trim().toLowerCase() + "%";
-            spec = spec.and((root, query, cb) -> cb.or(
-                    cb.like(cb.lower(root.get("fullName")), pattern),
-                    cb.like(cb.lower(root.get("email")), pattern),
-                    cb.like(cb.lower(root.get("phone")), pattern)
-            ));
-        }
-
-        if (StringUtils.hasText(status)) {
-            AccountStatus parsed = AccountStatus.valueOf(status.trim().toUpperCase());
-            spec = spec.and((root, query, cb) -> cb.equal(root.get("status"), parsed));
-        }
-
-        return userRepository.findAll(spec, pageable);
+        String cleanedKeyword = StringUtils.hasText(keyword) ? keyword.trim() : null;
+        AccountStatus parsedStatus = StringUtils.hasText(status)
+                ? AccountStatus.valueOf(status.trim().toUpperCase())
+                : null;
+        return userRepository.searchUsers(cleanedKeyword, parsedStatus, pageable);
     }
 
     @Override

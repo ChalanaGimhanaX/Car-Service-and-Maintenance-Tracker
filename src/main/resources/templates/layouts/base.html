@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en" xmlns:th="http://www.thymeleaf.org" th:fragment="layout(pageTitle, pageContent)">
+<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security" th:fragment="layout(pageTitle, pageContent)">
 <head th:replace="~{fragments/head :: head(${pageTitle})}"></head>
 <body class="min-h-screen bg-slate-950 text-slate-100">
 <div class="app-shell">
@@ -9,8 +9,8 @@
                 <i data-lucide="car-front" class="h-5 w-5"></i>
             </div>
             <div>
-                <p class="app-brand-title">WorkshopOS</p>
-                <p class="app-brand-subtitle">Car service tracker</p>
+                <p class="app-brand-title">Car Service Tracker</p>
+                <p class="app-brand-subtitle">Workshop management</p>
             </div>
         </div>
 
@@ -18,7 +18,7 @@
             <a class="app-nav-link" th:href="@{/dashboard}">
                 <i data-lucide="layout-dashboard" class="h-4 w-4"></i>Dashboard
             </a>
-            <a class="app-nav-link" th:href="@{/admin/users}">
+            <a class="app-nav-link" sec:authorize="hasRole('ADMIN')" th:href="@{/admin/users}">
                 <i data-lucide="users" class="h-4 w-4"></i>Users
             </a>
             <a class="app-nav-link" th:href="@{/vehicles}">
@@ -49,11 +49,12 @@
     <div class="app-main">
         <header class="app-topbar">
             <div>
-                <p class="app-topbar-label">Admin terminal</p>
+                <p class="app-topbar-label">Workshop system</p>
                 <p class="app-topbar-title">Car Service and Maintenance Tracker</p>
             </div>
             <nav class="app-mobile-nav">
                 <a th:href="@{/dashboard}">Dashboard</a>
+                <a sec:authorize="hasRole('ADMIN')" th:href="@{/admin/users}">Users</a>
                 <a th:href="@{/vehicles}">Vehicles</a>
                 <a th:href="@{/services}">Services</a>
                 <a th:href="@{/invoices}">Invoices</a>

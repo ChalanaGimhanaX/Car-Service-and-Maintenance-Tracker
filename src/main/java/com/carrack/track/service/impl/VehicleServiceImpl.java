@@ -14,7 +14,6 @@ import com.carrack.track.service.VehicleService;
 import java.time.LocalDateTime;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
@@ -33,40 +32,31 @@ public class VehicleServiceImpl implements VehicleService {
 
     @Override
     public Page<Vehicle> searchVehicles(String keyword, String status, AppUser currentUser, Pageable pageable) {
-        Specification<Vehicle> spec = Specification.where((root, query, cb) -> cb.notEqual(root.get("status"), VehicleStatus.DELETED));
-        if (!isAdmin(currentUser)) {
-            spec = spec.and((root, query, cb) -> cb.equal(root.get("owner").get("id"), currentUser.getId()));
-        }
-
-        if (StringUtils.hasText(keyword)) {
-            String pattern = "%" + keyword.trim().toLowerCase() + "%";
-            spec = spec.and((root, query, cb) -> cb.or(
-                    cb.like(cb.lower(root.get("vehicleNumber")), pattern),
-                    cb.like(cb.lower(root.get("brand")), pattern),
-                    cb.like(cb.lower(root.get("model")), pattern),
-                    cb.like(cb.lower(root.get("type")), pattern),
-                    cb.like(cb.lower(root.get("owner").get("fullName")), pattern),
-                    cb.like(cb.lower(root.get("owner").get("email")), pattern)
-            ));
-        }
-
+        String cleanedKeyword = StringUtils.hasText(keyword) ? keyword.trim() : null;
+        VehicleStatus parsedStatus = null;
         if (StringUtils.hasText(status)) {
-            VehicleStatus parsed;
             try {
-                parsed = VehicleStatus.valueOf(status.trim().toUpperCase());
+                parsedStatus = VehicleStatus.valueOf(status.trim().toUpperCase());
             } catch (IllegalArgumentException ex) {
                 throw new IllegalArgumentException("Invalid vehicle status.");
             }
-            spec = spec.and((root, query, cb) -> cb.equal(root.get("status"), parsed));
         }
 
-        return vehicleRepository.findAll(spec, pageable);
+        if (isAdmin(currentUser)) {
+            return vehicleRepository.searchAll(cleanedKeyword, parsedStatus, pageable);
+        }
+        return vehicleRepository.searchByOwner(currentUser.getId(), cleanedKeyword, parsedStatus, pageable);
+    }
+
+    @Override
+    public Vehicle getRequiredVehicle(Long id) {
+        return vehicleRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Vehicle not found."));
     }
 
     @Override
     public Vehicle getRequiredVehicle(Long id, AppUser currentUser) {
-        Vehicle vehicle = vehicleRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("Vehicle not found."));
+        Vehicle vehicle = getRequiredVehicle(id);
         if (vehicle.getStatus() == VehicleStatus.DELETED || !canAccess(vehicle, currentUser)) {
             throw new IllegalArgumentException("Vehicle not found.");
         }

@@ -4,6 +4,7 @@ import com.carrack.track.dto.ServiceForm;
 import com.carrack.track.entity.ServiceRecord;
 import com.carrack.track.entity.Vehicle;
 import com.carrack.track.enums.AuditAction;
+import com.carrack.track.repository.InvoiceRepository;
 import com.carrack.track.repository.ServiceRecordRepository;
 import com.carrack.track.service.AuditService;
 import com.carrack.track.service.ServiceRecordService;
@@ -11,7 +12,6 @@ import com.carrack.track.service.VehicleService;
 import java.util.List;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
@@ -20,34 +20,23 @@ public class ServiceRecordServiceImpl implements ServiceRecordService {
 
     private final ServiceRecordRepository serviceRecordRepository;
     private final VehicleService vehicleService;
+    private final InvoiceRepository invoiceRepository;
     private final AuditService auditService;
 
     public ServiceRecordServiceImpl(ServiceRecordRepository serviceRecordRepository,
                                     VehicleService vehicleService,
+                                    InvoiceRepository invoiceRepository,
                                     AuditService auditService) {
         this.serviceRecordRepository = serviceRecordRepository;
         this.vehicleService = vehicleService;
+        this.invoiceRepository = invoiceRepository;
         this.auditService = auditService;
     }
 
     @Override
     public Page<ServiceRecord> searchServiceRecords(String keyword, Long vehicleId, Pageable pageable) {
-        Specification<ServiceRecord> spec = Specification.where(null);
-
-        if (vehicleId != null) {
-            spec = spec.and((root, query, cb) -> cb.equal(root.get("vehicle").get("id"), vehicleId));
-        }
-
-        if (StringUtils.hasText(keyword)) {
-            String pattern = "%" + keyword.trim().toLowerCase() + "%";
-            spec = spec.and((root, query, cb) -> cb.or(
-                    cb.like(cb.lower(root.get("serviceType")), pattern),
-                    cb.like(cb.lower(root.get("serviceCenter")), pattern),
-                    cb.like(cb.lower(root.get("vehicle").get("vehicleNumber")), pattern)
-            ));
-        }
-
-        return serviceRecordRepository.findAll(spec, pageable);
+        String cleanedKeyword = StringUtils.hasText(keyword) ? keyword.trim() : null;
+        return serviceRecordRepository.searchRecords(cleanedKeyword, vehicleId, pageable);
     }
 
     @Override
@@ -83,6 +72,9 @@ public class ServiceRecordServiceImpl implements ServiceRecordService {
     @Override
     public void deleteServiceRecord(Long id, String actorEmail) {
         ServiceRecord record = getRequiredServiceRecord(id);
+        if (invoiceRepository.existsByServiceRecordId(id)) {
+            throw new IllegalStateException("Delete the invoice first before deleting this service record.");
+        }
         String vehicleNumber = record.getVehicle().getVehicleNumber();
         serviceRecordRepository.delete(record);
         auditService.log(AuditAction.SERVICE_DELETED, actorEmail,

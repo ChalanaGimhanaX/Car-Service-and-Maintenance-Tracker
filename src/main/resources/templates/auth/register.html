@@ -7,7 +7,7 @@
         <div class="w-full max-w-xl rounded-md border soft-border glass-panel p-8 shadow-2xl shadow-black/30">
             <p class="text-sm font-semibold uppercase tracking-[0.2em] text-emerald-300">Client onboarding</p>
             <h1 class="mt-3 text-3xl font-semibold text-white">Create account</h1>
-            <p class="mt-2 text-sm text-slate-400">This stores the account directly in MySQL and marks it ready for the admin dashboard.</p>
+            <p class="mt-2 text-sm text-slate-400">Create a client account to manage vehicles, services, and reminders.</p>
 
             <div th:if="${formError}" class="mt-4 rounded-md border border-rose-400/20 bg-rose-400/10 px-4 py-3 text-sm text-rose-200" th:text="${formError}"></div>
 
@@ -55,11 +55,11 @@
 
     <aside class="flex items-center justify-center px-6 py-12">
         <div class="w-full max-w-xl rounded-md border soft-border bg-slate-900/70 p-8">
-            <h2 class="text-2xl font-semibold text-white">What gets saved</h2>
+            <h2 class="text-2xl font-semibold text-white">Account details</h2>
             <div class="mt-5 grid gap-3 text-sm text-slate-300">
                 <div class="rounded-md border soft-border bg-slate-950/70 p-4">Full name, email, phone, hashed password, role, status, timestamps</div>
-                <div class="rounded-md border soft-border bg-slate-950/70 p-4">Admin actions captured in audit_logs</div>
-                <div class="rounded-md border soft-border bg-slate-950/70 p-4">Login timestamps updated after successful authentication</div>
+                <div class="rounded-md border soft-border bg-slate-950/70 p-4">Account status and role stored in the database</div>
+                <div class="rounded-md border soft-border bg-slate-950/70 p-4">Login timestamps updated after successful sign in</div>
             </div>
         </div>
     </aside>

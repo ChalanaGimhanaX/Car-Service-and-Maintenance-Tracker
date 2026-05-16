@@ -10,6 +10,8 @@ public interface VehicleService {
 
     Page<Vehicle> searchVehicles(String keyword, String status, AppUser currentUser, Pageable pageable);
 
+    Vehicle getRequiredVehicle(Long id);
+
     Vehicle getRequiredVehicle(Long id, AppUser currentUser);
 
     Vehicle createVehicle(VehicleForm form, AppUser currentUser, String actorEmail);
