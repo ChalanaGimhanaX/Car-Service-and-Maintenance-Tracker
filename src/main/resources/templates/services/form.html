@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{layouts/base :: layout('Service Form', ~{::section})}">
+<section>
+    <div class="mb-6">
+        <p class="text-sm uppercase tracking-[0.22em] text-emerald-300">Maintenance history</p>
+        <h1 class="text-3xl font-semibold text-white"
+            th:text="${formMode == 'edit' ? 'Edit service record' : 'Add service record'}">Add service record</h1>
+        <p class="text-sm text-slate-400">Record the details of a vehicle service or maintenance activity.</p>
+    </div>
+
+    <form class="rounded-md border soft-border glass-panel p-5" th:object="${serviceForm}"
+          th:action="${formMode == 'edit'} ? @{/services/{id}/edit(id=${serviceId})} : @{/services}" method="post">
+        <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
+
+        <div class="grid gap-4 md:grid-cols-2">
+            <div class="md:col-span-2">
+                <label class="mb-2 block text-sm font-medium text-slate-300" for="vehicleId">Vehicle</label>
+                <select class="form-input" id="vehicleId" th:field="*{vehicleId}">
+                    <option value="">Select a vehicle</option>
+                    <option th:each="v : ${vehicles}"
+                            th:value="${v.id}"
+                            th:text="${v.vehicleNumber + ' — ' + v.brand + ' ' + v.model}"></option>
+                </select>
+                <p class="mt-1 text-xs text-rose-300" th:if="${#fields.hasErrors('vehicleId')}" th:errors="*{vehicleId}"></p>
+            </div>
+
+            <div>
+                <label class="mb-2 block text-sm font-medium text-slate-300" for="serviceType">Service type</label>
+                <input class="form-input" id="serviceType" type="text" th:field="*{serviceType}"
+                       placeholder="e.g. Oil Change, Brake Service">
+                <p class="mt-1 text-xs text-rose-300" th:if="${#fields.hasErrors('serviceType')}" th:errors="*{serviceType}"></p>
+            </div>
+
+            <div>
+                <label class="mb-2 block text-sm font-medium text-slate-300" for="serviceDate">Service date</label>
+                <input class="form-input" id="serviceDate" type="date" th:field="*{serviceDate}">
+                <p class="mt-1 text-xs text-rose-300" th:if="${#fields.hasErrors('serviceDate')}" th:errors="*{serviceDate}"></p>
+            </div>
+
+            <div>
+                <label class="mb-2 block text-sm font-medium text-slate-300" for="mileageAtService">Mileage at service (km)</label>
+                <input class="form-input" id="mileageAtService" type="number" min="0" th:field="*{mileageAtService}"
+                       placeholder="45000">
+                <p class="mt-1 text-xs text-rose-300" th:if="${#fields.hasErrors('mileageAtService')}" th:errors="*{mileageAtService}"></p>
+            </div>
+
+            <div>
+                <label class="mb-2 block text-sm font-medium text-slate-300" for="cost">Cost (LKR)</label>
+                <input class="form-input" id="cost" type="number" min="0" step="0.01" th:field="*{cost}"
+                       placeholder="5000.00">
+                <p class="mt-1 text-xs text-rose-300" th:if="${#fields.hasErrors('cost')}" th:errors="*{cost}"></p>
+            </div>
+
+            <div class="md:col-span-2">
+                <label class="mb-2 block text-sm font-medium text-slate-300" for="serviceCenter">Service center</label>
+                <input class="form-input" id="serviceCenter" type="text" th:field="*{serviceCenter}"
+                       placeholder="e.g. Toyota Service Centre Colombo">
+                <p class="mt-1 text-xs text-rose-300" th:if="${#fields.hasErrors('serviceCenter')}" th:errors="*{serviceCenter}"></p>
+            </div>
+        </div>
+
+        <div class="mt-4">
+            <label class="mb-2 block text-sm font-medium text-slate-300" for="notes">Notes</label>
+            <textarea class="form-input min-h-32" id="notes" th:field="*{notes}"
+                      placeholder="Any additional details about the service performed"></textarea>
+            <p class="mt-1 text-xs text-rose-300" th:if="${#fields.hasErrors('notes')}" th:errors="*{notes}"></p>
+        </div>
+
+        <div class="mt-5 flex flex-wrap gap-3">
+            <button class="action-button bg-emerald-500 text-slate-950 hover:bg-emerald-400" type="submit">
+                <i data-lucide="save" class="h-4 w-4"></i>
+                <span th:text="${formMode == 'edit' ? 'Save changes' : 'Create record'}">Save</span>
+            </button>
+            <a class="action-button bg-white/5 text-slate-200 hover:bg-white/10" th:href="@{/services}">
+                <i data-lucide="arrow-left" class="h-4 w-4"></i>Back to list
+            </a>
+        </div>
+    </form>
+</section>
+</html>
