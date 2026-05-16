@@ -14,3 +14,4 @@ create table service_records (
                                  key idx_service_records_service_date (service_date),
                                  constraint fk_service_records_vehicle foreign key (vehicle_id) references vehicles (id)
 ) engine=InnoDB;
+
