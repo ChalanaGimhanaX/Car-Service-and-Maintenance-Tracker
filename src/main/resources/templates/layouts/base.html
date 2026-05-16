@@ -2,55 +2,71 @@
 <html lang="en" xmlns:th="http://www.thymeleaf.org" th:fragment="layout(pageTitle, pageContent)">
 <head th:replace="~{fragments/head :: head(${pageTitle})}"></head>
 <body class="min-h-screen bg-slate-950 text-slate-100">
-<div class="min-h-screen bg-slate-950">
-    <header class="border-b border-white/10 bg-slate-950/90 backdrop-blur">
-        <div class="mx-auto flex max-w-7xl flex-col gap-4 px-4 py-4 sm:px-6 lg:px-8 lg:flex-row lg:items-center lg:justify-between">
-            <div class="flex items-center gap-3">
-                <div class="flex h-10 w-10 items-center justify-center rounded-md bg-emerald-500/15 text-emerald-300">
-                    <i data-lucide="car-front" class="h-5 w-5"></i>
-                </div>
-                <div>
-                    <p class="text-sm font-semibold tracking-wide text-emerald-300">Car Service and Maintenance Tracker</p>
-                    <p class="text-xs text-slate-400">User management, audit trail, and live MySQL data</p>
-                </div>
+<div class="app-shell">
+    <aside class="app-sidebar">
+        <div class="app-brand">
+            <div class="app-brand-mark">
+                <i data-lucide="car-front" class="h-5 w-5"></i>
             </div>
-            <nav class="flex flex-wrap items-center gap-2 text-sm text-slate-300">
-                <a class="rounded-md px-3 py-2 hover:bg-white/5 hover:text-white" th:href="@{/dashboard}">
-                    <span class="inline-flex items-center gap-2"><i data-lucide="layout-dashboard" class="h-4 w-4"></i>Dashboard</span>
-                </a>
-                <a class="rounded-md px-3 py-2 hover:bg-white/5 hover:text-white" th:href="@{/admin/users}">
-                    <span class="inline-flex items-center gap-2"><i data-lucide="users" class="h-4 w-4"></i>Users</span>
-                </a>
-                <a class="rounded-md px-3 py-2 hover:bg-white/5 hover:text-white" th:href="@{/profile}">
-                    <span class="inline-flex items-center gap-2"><i data-lucide="user" class="h-4 w-4"></i>Profile</span>
-                </a>
-                <a class="rounded-md px-3 py-2 hover:bg-white/5 hover:text-white" th:href="@{/vehicles}">
-                    <span class="inline-flex items-center gap-2"><i data-lucide="truck" class="h-4 w-4"></i>Vehicles</span>
-                </a>
-                <a class="rounded-md px-3 py-2 hover:bg-white/5 hover:text-white" th:href="@{/services}">
-                    <span class="inline-flex items-center gap-2"><i data-lucide="wrench" class="h-4 w-4"></i>Services</span>
-                </a>
-                <a class="rounded-md px-3 py-2 hover:bg-white/5 hover:text-white" th:href="@{/invoices}">
-                    <span class="inline-flex items-center gap-2"><i data-lucide="receipt" class="h-4 w-4"></i>Invoices</span>
-                </a>
-                <a class="rounded-md px-3 py-2 hover:bg-white/5 hover:text-white" th:href="@{/maintenance}">
-                    <span class="inline-flex items-center gap-2"><i data-lucide="bell-ring" class="h-4 w-4"></i>Maintenance</span>
-                </a>
-                <form th:action="@{/logout}" method="post" class="ml-0 lg:ml-2">
-                    <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
-                    <button class="action-button bg-white/5 text-slate-200 hover:bg-white/10" type="submit">
-                        <i data-lucide="log-out" class="h-4 w-4"></i>Logout
-                    </button>
-                </form>
-            </nav>
+            <div>
+                <p class="app-brand-title">WorkshopOS</p>
+                <p class="app-brand-subtitle">Car service tracker</p>
+            </div>
         </div>
-    </header>
 
-    <main class="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
-        <div th:if="${successMessage}" class="mb-6 rounded-md border border-emerald-400/20 bg-emerald-400/10 px-4 py-3 text-sm text-emerald-200" th:text="${successMessage}"></div>
-        <div th:if="${formError}" class="mb-6 rounded-md border border-rose-400/20 bg-rose-400/10 px-4 py-3 text-sm text-rose-200" th:text="${formError}"></div>
-        <div th:replace="${pageContent}"></div>
-    </main>
+        <nav class="app-nav">
+            <a class="app-nav-link" th:href="@{/dashboard}">
+                <i data-lucide="layout-dashboard" class="h-4 w-4"></i>Dashboard
+            </a>
+            <a class="app-nav-link" th:href="@{/admin/users}">
+                <i data-lucide="users" class="h-4 w-4"></i>Users
+            </a>
+            <a class="app-nav-link" th:href="@{/vehicles}">
+                <i data-lucide="truck" class="h-4 w-4"></i>Vehicles
+            </a>
+            <a class="app-nav-link" th:href="@{/services}">
+                <i data-lucide="wrench" class="h-4 w-4"></i>Services
+            </a>
+            <a class="app-nav-link" th:href="@{/invoices}">
+                <i data-lucide="receipt" class="h-4 w-4"></i>Invoices
+            </a>
+            <a class="app-nav-link" th:href="@{/maintenance}">
+                <i data-lucide="bell-ring" class="h-4 w-4"></i>Maintenance
+            </a>
+            <a class="app-nav-link" th:href="@{/profile}">
+                <i data-lucide="user" class="h-4 w-4"></i>Profile
+            </a>
+        </nav>
+
+        <form th:action="@{/logout}" method="post" class="app-sidebar-footer">
+            <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
+            <button class="app-nav-link app-logout" type="submit">
+                <i data-lucide="log-out" class="h-4 w-4"></i>Logout
+            </button>
+        </form>
+    </aside>
+
+    <div class="app-main">
+        <header class="app-topbar">
+            <div>
+                <p class="app-topbar-label">Admin terminal</p>
+                <p class="app-topbar-title">Car Service and Maintenance Tracker</p>
+            </div>
+            <nav class="app-mobile-nav">
+                <a th:href="@{/dashboard}">Dashboard</a>
+                <a th:href="@{/vehicles}">Vehicles</a>
+                <a th:href="@{/services}">Services</a>
+                <a th:href="@{/invoices}">Invoices</a>
+                <a th:href="@{/maintenance}">Maintenance</a>
+            </nav>
+        </header>
+
+        <main class="app-content">
+            <div th:if="${successMessage}" class="mb-6 rounded-md border border-emerald-400/20 bg-emerald-400/10 px-4 py-3 text-sm text-emerald-200" th:text="${successMessage}"></div>
+            <div th:if="${formError}" class="mb-6 rounded-md border border-rose-400/20 bg-rose-400/10 px-4 py-3 text-sm text-rose-200" th:text="${formError}"></div>
+            <div th:replace="${pageContent}"></div>
+        </main>
+    </div>
 </div>
 </body>
 </html>

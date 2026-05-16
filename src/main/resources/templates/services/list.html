@@ -18,7 +18,7 @@
                th:value="${keyword}">
         <select class="form-input w-full sm:w-48" name="vehicleId">
             <option value="">All vehicles</option>
-            <option th:each="v : ${vehicles}" th:value="${v.id}" th:text="${v.vehicleNumber + ' — ' + v.brand + ' ' + v.model}"
+            <option th:each="v : ${vehicles}" th:value="${v.id}" th:text="${v.vehicleNumber + ' - ' + v.brand + ' ' + v.model}"
                     th:selected="${v.id == selectedVehicleId}"></option>
         </select>
         <button class="action-button bg-white/5 text-slate-200 hover:bg-white/10" type="submit">
@@ -37,13 +37,14 @@
                 <th class="px-4 py-3 text-left">Service Type</th>
                 <th class="px-4 py-3 text-left">Date</th>
                 <th class="px-4 py-3 text-left">Mileage</th>
+                <th class="px-4 py-3 text-left">Center</th>
                 <th class="px-4 py-3 text-left">Cost (LKR)</th>
                 <th class="px-4 py-3 text-left">Actions</th>
             </tr>
             </thead>
             <tbody>
             <tr th:if="${recordsPage.isEmpty()}">
-                <td class="px-4 py-8 text-center text-slate-500" colspan="6">No service records found.</td>
+                <td class="px-4 py-8 text-center text-slate-500" colspan="7">No service records found.</td>
             </tr>
             <tr class="border-t border-white/5 hover:bg-white/5"
                 th:each="record : ${recordsPage.content}">
@@ -54,11 +55,12 @@
                     <p class="text-xs text-slate-500" th:text="${record.vehicle.brand + ' ' + record.vehicle.model}"></p>
                 </td>
                 <td class="px-4 py-3" th:text="${record.serviceType}"></td>
-                <td class="px-4 py-3" th:text="${record.serviceDate}"></td>
+                <td class="px-4 py-3" th:text="${#temporals.format(record.serviceDate, 'dd MMM yyyy')}"></td>
                 <td class="px-4 py-3" th:text="${record.mileageAtService + ' km'}"></td>
-                <td class="px-4 py-3" th:text="${#numbers.formatDecimal(record.cost, 1, 2)}"></td>
+                <td class="px-4 py-3" th:text="${record.serviceCenter != null ? record.serviceCenter : '-'}"></td>
+                <td class="px-4 py-3" th:text="${#numbers.formatDecimal(record.cost, 1, 'COMMA', 2, 'POINT')}"></td>
                 <td class="px-4 py-3">
-                    <div class="flex gap-2">
+                    <div class="flex flex-wrap gap-2">
                         <a class="action-button bg-white/5 text-slate-200 hover:bg-white/10"
                            th:href="@{/services/{id}(id=${record.id})}">
                             <i data-lucide="eye" class="h-4 w-4"></i>View
@@ -67,6 +69,12 @@
                            th:href="@{/services/{id}/edit(id=${record.id})}">
                             <i data-lucide="pencil" class="h-4 w-4"></i>Edit
                         </a>
+                        <form th:action="@{/services/{id}/delete(id=${record.id})}" method="post">
+                            <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
+                            <button class="action-button bg-rose-500/15 text-rose-200 hover:bg-rose-500/25" type="submit">
+                                <i data-lucide="trash-2" class="h-4 w-4"></i>Delete
+                            </button>
+                        </form>
                     </div>
                 </td>
             </tr>

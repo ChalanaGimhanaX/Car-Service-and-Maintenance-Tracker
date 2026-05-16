@@ -20,7 +20,7 @@
                     <option value="">Select a vehicle</option>
                     <option th:each="v : ${vehicles}"
                             th:value="${v.id}"
-                            th:text="${v.vehicleNumber + ' — ' + v.brand + ' ' + v.model}"></option>
+                            th:text="${v.vehicleNumber + ' - ' + v.brand + ' ' + v.model}"></option>
                 </select>
                 <p class="mt-1 text-xs text-rose-300" th:if="${#fields.hasErrors('vehicleId')}" th:errors="*{vehicleId}"></p>
             </div>
