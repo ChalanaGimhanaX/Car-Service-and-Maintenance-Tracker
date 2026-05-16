@@ -1,122 +1,61 @@
 package com.carrack.track.dto;
 
-import com.carrack.track.enums.ServiceStatus;
 import jakarta.validation.constraints.DecimalMin;
+import jakarta.validation.constraints.Digits;
+import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Pattern;
+import jakarta.validation.constraints.PastOrPresent;
 import jakarta.validation.constraints.Size;
 import java.math.BigDecimal;
 import java.time.LocalDate;
-import org.springframework.format.annotation.DateTimeFormat;
 
 public class ServiceForm {
 
-    @NotBlank(message = "Service code is required.")
-    @Size(max = 30, message = "Service code must be 30 characters or fewer.")
-    @Pattern(regexp = "^[A-Za-z0-9 -]+$", message = "Service code may only contain letters, numbers, spaces, and hyphens.")
-    private String serviceCode;
-
-    @NotBlank(message = "Vehicle number is required.")
-    @Size(max = 30, message = "Vehicle number must be 30 characters or fewer.")
-    @Pattern(regexp = "^[A-Za-z0-9 -]+$", message = "Vehicle number may only contain letters, numbers, spaces, and hyphens.")
-    private String vehicleNumber;
-
-    @NotBlank(message = "Customer name is required.")
-    @Size(max = 120, message = "Customer name must be 120 characters or fewer.")
-    private String customerName;
+    @NotNull(message = "Vehicle is required.")
+    private Long vehicleId;
 
     @NotBlank(message = "Service type is required.")
-    @Size(max = 80, message = "Service type must be 80 characters or fewer.")
+    @Size(max = 100, message = "Service type must be 100 characters or fewer.")
     private String serviceType;
 
     @NotNull(message = "Service date is required.")
-    @DateTimeFormat(pattern = "yyyy-MM-dd")
+    @PastOrPresent(message = "Service date cannot be in the future.")
     private LocalDate serviceDate;
+
+    @NotNull(message = "Mileage at service is required.")
+    @Min(value = 0, message = "Mileage cannot be negative.")
+    private Integer mileageAtService;
+
+    @Size(max = 150, message = "Service center must be 150 characters or fewer.")
+    private String serviceCenter;
 
     @NotNull(message = "Cost is required.")
     @DecimalMin(value = "0.00", message = "Cost cannot be negative.")
+    @Digits(integer = 8, fraction = 2, message = "Cost must be a valid amount.")
     private BigDecimal cost;
-
-    @NotBlank(message = "Technician name is required.")
-    @Size(max = 120, message = "Technician name must be 120 characters or fewer.")
-    private String technicianName;
-
-    @NotNull(message = "Status is required.")
-    private ServiceStatus status = ServiceStatus.PENDING;
 
     @Size(max = 1000, message = "Notes must be 1000 characters or fewer.")
     private String notes;
 
-    public String getServiceCode() {
-        return serviceCode;
-    }
+    public Long getVehicleId() { return vehicleId; }
+    public void setVehicleId(Long vehicleId) { this.vehicleId = vehicleId; }
 
-    public void setServiceCode(String serviceCode) {
-        this.serviceCode = serviceCode;
-    }
+    public String getServiceType() { return serviceType; }
+    public void setServiceType(String serviceType) { this.serviceType = serviceType; }
 
-    public String getVehicleNumber() {
-        return vehicleNumber;
-    }
+    public LocalDate getServiceDate() { return serviceDate; }
+    public void setServiceDate(LocalDate serviceDate) { this.serviceDate = serviceDate; }
 
-    public void setVehicleNumber(String vehicleNumber) {
-        this.vehicleNumber = vehicleNumber;
-    }
+    public Integer getMileageAtService() { return mileageAtService; }
+    public void setMileageAtService(Integer mileageAtService) { this.mileageAtService = mileageAtService; }
 
-    public String getCustomerName() {
-        return customerName;
-    }
+    public String getServiceCenter() { return serviceCenter; }
+    public void setServiceCenter(String serviceCenter) { this.serviceCenter = serviceCenter; }
 
-    public void setCustomerName(String customerName) {
-        this.customerName = customerName;
-    }
+    public BigDecimal getCost() { return cost; }
+    public void setCost(BigDecimal cost) { this.cost = cost; }
 
-    public String getServiceType() {
-        return serviceType;
-    }
-
-    public void setServiceType(String serviceType) {
-        this.serviceType = serviceType;
-    }
-
-    public LocalDate getServiceDate() {
-        return serviceDate;
-    }
-
-    public void setServiceDate(LocalDate serviceDate) {
-        this.serviceDate = serviceDate;
-    }
-
-    public BigDecimal getCost() {
-        return cost;
-    }
-
-    public void setCost(BigDecimal cost) {
-        this.cost = cost;
-    }
-
-    public String getTechnicianName() {
-        return technicianName;
-    }
-
-    public void setTechnicianName(String technicianName) {
-        this.technicianName = technicianName;
-    }
-
-    public ServiceStatus getStatus() {
-        return status;
-    }
-
-    public void setStatus(ServiceStatus status) {
-        this.status = status;
-    }
-
-    public String getNotes() {
-        return notes;
-    }
-
-    public void setNotes(String notes) {
-        this.notes = notes;
-    }
+    public String getNotes() { return notes; }
+    public void setNotes(String notes) { this.notes = notes; }
 }

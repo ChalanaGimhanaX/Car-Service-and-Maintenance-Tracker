@@ -1,84 +1,81 @@
 <!DOCTYPE html>
 <html lang="en" xmlns:th="http://www.thymeleaf.org"
-      th:replace="~{layouts/base :: layout('Service Details', ~{::section})}">
+      th:replace="~{layouts/base :: layout('Service Detail', ~{::section})}">
 <section>
-    <div class="mb-6 flex flex-col gap-3 lg:flex-row lg:items-end lg:justify-between">
+    <div class="mb-6 flex flex-wrap items-start justify-between gap-4">
         <div>
-            <p class="text-sm uppercase tracking-[0.22em] text-emerald-300">Service details</p>
-            <h1 class="text-3xl font-semibold text-white" th:text="${serviceRecord.serviceCode}">SRV-1001</h1>
-            <p class="text-sm text-slate-400" th:text="${serviceRecord.vehicleNumber + ' - ' + serviceRecord.customerName}">WP ABC-1234 - Customer</p>
+            <p class="text-sm uppercase tracking-[0.22em] text-emerald-300">Maintenance history</p>
+            <h1 class="text-3xl font-semibold text-white">Service Record Detail</h1>
+            <p class="text-sm text-slate-400">Full details of this service entry.</p>
         </div>
         <div class="flex flex-wrap gap-2">
-            <a class="action-button bg-white/5 text-slate-200 hover:bg-white/10" th:href="@{/services}">
-                <i data-lucide="arrow-left" class="h-4 w-4"></i>Back
+            <a class="action-button bg-white/5 text-slate-200 hover:bg-white/10"
+               th:href="@{/services/{id}/edit(id=${record.id})}">
+                <i data-lucide="pencil" class="h-4 w-4"></i>Edit
             </a>
-            <a class="action-button bg-emerald-500 text-slate-950 hover:bg-emerald-400" th:href="@{/services/{id}/edit(id=${serviceRecord.id})}">
-                <i data-lucide="square-pen" class="h-4 w-4"></i>Edit
+            <form th:action="@{/services/{id}/delete(id=${record.id})}" method="post"
+                  onsubmit="return confirm('Delete this service record?')">
+                <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
+                <button class="action-button bg-rose-500/20 text-rose-300 hover:bg-rose-500/30" type="submit">
+                    <i data-lucide="trash-2" class="h-4 w-4"></i>Delete
+                </button>
+            </form>
+            <a class="action-button bg-white/5 text-slate-200 hover:bg-white/10" th:href="@{/services}">
+                <i data-lucide="arrow-left" class="h-4 w-4"></i>Back to list
             </a>
         </div>
     </div>
 
-    <div class="grid gap-6 lg:grid-cols-[1fr_0.75fr]">
-        <div class="rounded-md border soft-border glass-panel p-5">
-            <h2 class="text-lg font-semibold text-white">Record summary</h2>
-            <dl class="mt-5 grid gap-4 sm:grid-cols-2">
-                <div>
-                    <dt class="text-xs uppercase tracking-[0.18em] text-slate-500">Vehicle number</dt>
-                    <dd class="mt-1 text-slate-100" th:text="${serviceRecord.vehicleNumber}">WP ABC-1234</dd>
-                </div>
-                <div>
-                    <dt class="text-xs uppercase tracking-[0.18em] text-slate-500">Customer</dt>
-                    <dd class="mt-1 text-slate-100" th:text="${serviceRecord.customerName}">Customer</dd>
-                </div>
-                <div>
-                    <dt class="text-xs uppercase tracking-[0.18em] text-slate-500">Service type</dt>
-                    <dd class="mt-1 text-slate-100" th:text="${serviceRecord.serviceType}">Full Service</dd>
-                </div>
-                <div>
-                    <dt class="text-xs uppercase tracking-[0.18em] text-slate-500">Technician</dt>
-                    <dd class="mt-1 text-slate-100" th:text="${serviceRecord.technicianName}">Technician</dd>
-                </div>
-                <div>
-                    <dt class="text-xs uppercase tracking-[0.18em] text-slate-500">Service date</dt>
-                    <dd class="mt-1 text-slate-100" th:text="${#temporals.format(serviceRecord.serviceDate, 'dd MMM yyyy')}">15 May 2026</dd>
-                </div>
-                <div>
-                    <dt class="text-xs uppercase tracking-[0.18em] text-slate-500">Cost</dt>
-                    <dd class="mt-1 text-slate-100" th:text="${'Rs. ' + #numbers.formatDecimal(serviceRecord.cost, 1, 'COMMA', 2, 'POINT')}">Rs. 9,500.00</dd>
-                </div>
-            </dl>
+    <div class="rounded-md border soft-border glass-panel p-5 grid gap-6 md:grid-cols-2">
 
-            <div class="mt-6">
-                <h3 class="text-sm font-semibold text-slate-200">Notes</h3>
-                <p class="mt-2 whitespace-pre-line text-sm text-slate-400" th:text="${serviceRecord.notes != null ? serviceRecord.notes : 'No notes recorded.'}">No notes recorded.</p>
-            </div>
+        <div>
+            <p class="text-xs uppercase tracking-wider text-slate-500 mb-1">Vehicle</p>
+            <a class="text-emerald-300 hover:underline font-medium"
+               th:href="@{/vehicles/{id}(id=${record.vehicle.id})}"
+               th:text="${record.vehicle.vehicleNumber}"></a>
+            <p class="text-sm text-slate-400" th:text="${record.vehicle.brand + ' ' + record.vehicle.model}"></p>
         </div>
 
-        <aside class="rounded-md border soft-border glass-panel p-5">
-            <h2 class="text-lg font-semibold text-white">Operations</h2>
-            <div class="mt-4 space-y-4 text-sm">
-                <div>
-                    <p class="text-xs uppercase tracking-[0.18em] text-slate-500">Status</p>
-                    <span class="badge mt-2"
-                          th:classappend="${serviceRecord.status.name() == 'COMPLETED'} ? ' badge-active' : (${serviceRecord.status.name() == 'IN_PROGRESS'} ? ' badge-pending' : (${serviceRecord.status.name() == 'PENDING'} ? ' badge-suspended' : ' badge-deleted'))"
-                          th:text="${serviceRecord.status}">PENDING</span>
-                </div>
-                <div>
-                    <p class="text-xs uppercase tracking-[0.18em] text-slate-500">Created</p>
-                    <p class="mt-1 text-slate-300" th:text="${#temporals.format(serviceRecord.createdAt, 'dd MMM yyyy, HH:mm')}">01 Jan 2026, 10:00</p>
-                </div>
-                <div>
-                    <p class="text-xs uppercase tracking-[0.18em] text-slate-500">Last updated</p>
-                    <p class="mt-1 text-slate-300" th:text="${#temporals.format(serviceRecord.updatedAt, 'dd MMM yyyy, HH:mm')}">01 Jan 2026, 10:00</p>
-                </div>
-                <form th:action="@{/services/{id}/delete(id=${serviceRecord.id})}" method="post">
-                    <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
-                    <button class="action-button w-full justify-center bg-rose-500/15 text-rose-200 hover:bg-rose-500/25" type="submit">
-                        <i data-lucide="trash-2" class="h-4 w-4"></i>Archive record
-                    </button>
-                </form>
-            </div>
-        </aside>
+        <div>
+            <p class="text-xs uppercase tracking-wider text-slate-500 mb-1">Service Type</p>
+            <p class="text-white font-medium" th:text="${record.serviceType}"></p>
+        </div>
+
+        <div>
+            <p class="text-xs uppercase tracking-wider text-slate-500 mb-1">Service Date</p>
+            <p class="text-white" th:text="${record.serviceDate}"></p>
+        </div>
+
+        <div>
+            <p class="text-xs uppercase tracking-wider text-slate-500 mb-1">Mileage at Service</p>
+            <p class="text-white" th:text="${record.mileageAtService + ' km'}"></p>
+        </div>
+
+        <div>
+            <p class="text-xs uppercase tracking-wider text-slate-500 mb-1">Service Center</p>
+            <p class="text-white" th:text="${record.serviceCenter != null ? record.serviceCenter : '—'}"></p>
+        </div>
+
+        <div>
+            <p class="text-xs uppercase tracking-wider text-slate-500 mb-1">Cost (LKR)</p>
+            <p class="text-white" th:text="${#numbers.formatDecimal(record.cost, 1, 2)}"></p>
+        </div>
+
+        <div class="md:col-span-2">
+            <p class="text-xs uppercase tracking-wider text-slate-500 mb-1">Notes</p>
+            <p class="text-white" th:text="${record.notes != null ? record.notes : '—'}"></p>
+        </div>
+
+        <div>
+            <p class="text-xs uppercase tracking-wider text-slate-500 mb-1">Created At</p>
+            <p class="text-slate-400 text-sm" th:text="${record.createdAt}"></p>
+        </div>
+
+        <div>
+            <p class="text-xs uppercase tracking-wider text-slate-500 mb-1">Last Updated</p>
+            <p class="text-slate-400 text-sm" th:text="${record.updatedAt}"></p>
+        </div>
+
     </div>
 </section>
 </html>

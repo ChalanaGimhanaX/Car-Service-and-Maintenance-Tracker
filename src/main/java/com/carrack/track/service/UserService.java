@@ -4,6 +4,7 @@ import com.carrack.track.dto.RegistrationRequest;
 import com.carrack.track.dto.ProfileForm;
 import com.carrack.track.dto.UserForm;
 import com.carrack.track.entity.AppUser;
+import java.util.List;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
@@ -14,6 +15,8 @@ public interface UserService {
     AppUser updateOwnProfile(String email, ProfileForm form);
 
     Page<AppUser> searchUsers(String keyword, String status, Pageable pageable);
+
+    List<AppUser> listAssignableClients();
 
     AppUser getRequiredUser(Long id);
 

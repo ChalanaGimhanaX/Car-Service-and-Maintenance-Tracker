@@ -2,7 +2,8 @@ package com.carrack.track.controller;
 
 import com.carrack.track.dto.ServiceForm;
 import com.carrack.track.entity.ServiceRecord;
-import com.carrack.track.enums.ServiceStatus;
+import com.carrack.track.entity.Vehicle;
+import com.carrack.track.repository.VehicleRepository;
 import com.carrack.track.service.AppUserPrincipal;
 import com.carrack.track.service.ServiceRecordService;
 import jakarta.validation.Valid;
@@ -25,29 +26,35 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 public class ServiceController {
 
     private final ServiceRecordService serviceRecordService;
+    private final VehicleRepository vehicleRepository;
 
-    public ServiceController(ServiceRecordService serviceRecordService) {
+    public ServiceController(ServiceRecordService serviceRecordService,
+                             VehicleRepository vehicleRepository) {
         this.serviceRecordService = serviceRecordService;
+        this.vehicleRepository = vehicleRepository;
     }
 
     @GetMapping("/services")
     public String list(@RequestParam(value = "q", required = false) String q,
-                       @RequestParam(value = "status", required = false) String status,
+                       @RequestParam(value = "vehicleId", required = false) Long vehicleId,
                        @RequestParam(value = "page", defaultValue = "0") int page,
                        Model model) {
-        Pageable pageable = PageRequest.of(page, 8, Sort.by(Sort.Direction.DESC, "serviceDate"));
-        Page<ServiceRecord> services = serviceRecordService.searchServices(q, status, pageable);
-        model.addAttribute("servicesPage", services);
+        Pageable pageable = PageRequest.of(page, 10, Sort.by(Sort.Direction.DESC, "serviceDate"));
+        Page<ServiceRecord> recordsPage = serviceRecordService.searchServiceRecords(q, vehicleId, pageable);
+        model.addAttribute("recordsPage", recordsPage);
         model.addAttribute("keyword", q);
-        model.addAttribute("selectedStatus", status);
-        model.addAttribute("statusValues", ServiceStatus.values());
+        model.addAttribute("selectedVehicleId", vehicleId);
+        model.addAttribute("vehicles", vehicleRepository.findAll());
         return "services/list";
     }
 
     @GetMapping("/services/new")
-    public String create(Model model) {
-        model.addAttribute("serviceForm", new ServiceForm());
-        model.addAttribute("statusValues", ServiceStatus.values());
+    public String create(@RequestParam(value = "vehicleId", required = false) Long vehicleId,
+                         Model model) {
+        ServiceForm form = new ServiceForm();
+        if (vehicleId != null) form.setVehicleId(vehicleId);
+        model.addAttribute("serviceForm", form);
+        model.addAttribute("vehicles", vehicleRepository.findAll());
         model.addAttribute("formMode", "create");
         return "services/form";
     }
@@ -59,7 +66,7 @@ public class ServiceController {
                         RedirectAttributes redirectAttributes,
                         Model model) {
         if (bindingResult.hasErrors()) {
-            model.addAttribute("statusValues", ServiceStatus.values());
+            model.addAttribute("vehicles", vehicleRepository.findAll());
             model.addAttribute("formMode", "create");
             return "services/form";
         }
@@ -69,7 +76,7 @@ public class ServiceController {
             redirectAttributes.addFlashAttribute("successMessage", "Service record created.");
             return "redirect:/services/" + saved.getId();
         } catch (IllegalArgumentException | IllegalStateException ex) {
-            model.addAttribute("statusValues", ServiceStatus.values());
+            model.addAttribute("vehicles", vehicleRepository.findAll());
             model.addAttribute("formMode", "create");
             model.addAttribute("formError", ex.getMessage());
             return "services/form";
@@ -78,7 +85,7 @@ public class ServiceController {
 
     @GetMapping("/services/{id}")
     public String detail(@PathVariable Long id, Model model) {
-        model.addAttribute("serviceRecord", serviceRecordService.getRequiredServiceRecord(id));
+        model.addAttribute("record", serviceRecordService.getRequiredServiceRecord(id));
         return "services/detail";
     }
 
@@ -87,7 +94,7 @@ public class ServiceController {
         ServiceRecord record = serviceRecordService.getRequiredServiceRecord(id);
         model.addAttribute("serviceId", id);
         model.addAttribute("serviceForm", toForm(record));
-        model.addAttribute("statusValues", ServiceStatus.values());
+        model.addAttribute("vehicles", vehicleRepository.findAll());
         model.addAttribute("formMode", "edit");
         return "services/form";
     }
@@ -101,7 +108,7 @@ public class ServiceController {
                          Model model) {
         if (bindingResult.hasErrors()) {
             model.addAttribute("serviceId", id);
-            model.addAttribute("statusValues", ServiceStatus.values());
+            model.addAttribute("vehicles", vehicleRepository.findAll());
             model.addAttribute("formMode", "edit");
             return "services/form";
         }
@@ -112,7 +119,7 @@ public class ServiceController {
             return "redirect:/services/" + id;
         } catch (IllegalArgumentException | IllegalStateException ex) {
             model.addAttribute("serviceId", id);
-            model.addAttribute("statusValues", ServiceStatus.values());
+            model.addAttribute("vehicles", vehicleRepository.findAll());
             model.addAttribute("formMode", "edit");
             model.addAttribute("formError", ex.getMessage());
             return "services/form";
@@ -124,20 +131,18 @@ public class ServiceController {
                          @AuthenticationPrincipal AppUserPrincipal principal,
                          RedirectAttributes redirectAttributes) {
         serviceRecordService.deleteServiceRecord(id, currentActor(principal));
-        redirectAttributes.addFlashAttribute("successMessage", "Service record archived.");
+        redirectAttributes.addFlashAttribute("successMessage", "Service record deleted.");
         return "redirect:/services";
     }
 
     private ServiceForm toForm(ServiceRecord record) {
         ServiceForm form = new ServiceForm();
-        form.setServiceCode(record.getServiceCode());
-        form.setVehicleNumber(record.getVehicleNumber());
-        form.setCustomerName(record.getCustomerName());
+        form.setVehicleId(record.getVehicle().getId());
         form.setServiceType(record.getServiceType());
         form.setServiceDate(record.getServiceDate());
+        form.setMileageAtService(record.getMileageAtService());
+        form.setServiceCenter(record.getServiceCenter());
         form.setCost(record.getCost());
-        form.setTechnicianName(record.getTechnicianName());
-        form.setStatus(record.getStatus());
         form.setNotes(record.getNotes());
         return form;
     }

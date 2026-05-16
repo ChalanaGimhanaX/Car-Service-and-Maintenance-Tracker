@@ -44,7 +44,7 @@ public class DashboardServiceImpl implements DashboardService {
                 userRepository.countByStatus(AccountStatus.SUSPENDED),
                 userRepository.countByCreatedAtAfter(monthStart),
                 vehicleRepository.countByDeletedAtIsNull(),
-                serviceRecordRepository.countByDeletedAtIsNull(),
+                serviceRecordRepository.count(),
                 maintenanceReminderRepository.countByDeletedAtIsNull(),
                 userRepository.findTop5ByStatusNotOrderByCreatedAtDesc(AccountStatus.DELETED),
                 auditService.recentLogs()
