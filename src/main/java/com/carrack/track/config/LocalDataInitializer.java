@@ -11,6 +11,7 @@ import com.carrack.track.enums.PaymentMethod;
 import com.carrack.track.enums.PaymentStatus;
 import com.carrack.track.enums.ReminderStatus;
 import com.carrack.track.enums.Role;
+import com.carrack.track.enums.ServiceStatus;
 import com.carrack.track.enums.VehicleStatus;
 import com.carrack.track.repository.AppUserRepository;
 import com.carrack.track.repository.InvoiceRepository;
@@ -93,6 +94,13 @@ public class LocalDataInitializer {
                     .orElseGet(() -> saveServiceRecord(serviceRecordRepository, vehicleTwo, "Brake Service",
                             LocalDate.now().minusDays(7), 61000, "Metro Auto Care", new BigDecimal("12500.00")));
 
+            serviceRecordRepository.findAll().stream()
+                    .filter(record -> record.getServiceStatus() == null)
+                    .forEach(record -> {
+                        record.setServiceStatus(ServiceStatus.COMPLETED);
+                        serviceRecordRepository.save(record);
+                    });
+
             if (maintenanceReminderRepository.count() == 0) {
                 MaintenanceReminder reminder = new MaintenanceReminder();
                 reminder.setVehicleNumber(vehicleOne.getVehicleNumber());
@@ -166,6 +174,7 @@ public class LocalDataInitializer {
         record.setServiceDate(serviceDate);
         record.setMileageAtService(mileage);
         record.setServiceCenter(serviceCenter);
+        record.setServiceStatus(ServiceStatus.COMPLETED);
         record.setCost(cost);
         record.setNotes("Seed data for local verification.");
         return serviceRecordRepository.save(record);

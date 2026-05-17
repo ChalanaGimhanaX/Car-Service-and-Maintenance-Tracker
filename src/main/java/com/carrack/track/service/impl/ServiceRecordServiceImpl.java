@@ -1,9 +1,12 @@
 package com.carrack.track.service.impl;
 
 import com.carrack.track.dto.ServiceForm;
+import com.carrack.track.entity.AppUser;
 import com.carrack.track.entity.ServiceRecord;
 import com.carrack.track.entity.Vehicle;
 import com.carrack.track.enums.AuditAction;
+import com.carrack.track.enums.Role;
+import com.carrack.track.enums.ServiceStatus;
 import com.carrack.track.repository.InvoiceRepository;
 import com.carrack.track.repository.ServiceRecordRepository;
 import com.carrack.track.service.AuditService;
@@ -34,8 +37,11 @@ public class ServiceRecordServiceImpl implements ServiceRecordService {
     }
 
     @Override
-    public Page<ServiceRecord> searchServiceRecords(String keyword, Long vehicleId, Pageable pageable) {
+    public Page<ServiceRecord> searchServiceRecords(String keyword, Long vehicleId, AppUser currentUser, Pageable pageable) {
         String cleanedKeyword = StringUtils.hasText(keyword) ? keyword.trim() : null;
+        if (!isAdmin(currentUser)) {
+            return serviceRecordRepository.searchRecordsByOwner(currentUser.getId(), cleanedKeyword, vehicleId, pageable);
+        }
         return serviceRecordRepository.searchRecords(cleanedKeyword, vehicleId, pageable);
     }
 
@@ -43,6 +49,15 @@ public class ServiceRecordServiceImpl implements ServiceRecordService {
     public ServiceRecord getRequiredServiceRecord(Long id) {
         return serviceRecordRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Service record not found."));
+    }
+
+    @Override
+    public ServiceRecord getRequiredServiceRecord(Long id, AppUser currentUser) {
+        ServiceRecord record = getRequiredServiceRecord(id);
+        if (!isAdmin(currentUser) && !record.getVehicle().getOwner().getId().equals(currentUser.getId())) {
+            throw new IllegalArgumentException("Service record not found.");
+        }
+        return record;
     }
 
     @Override
@@ -70,6 +85,19 @@ public class ServiceRecordServiceImpl implements ServiceRecordService {
     }
 
     @Override
+    public ServiceRecord updateServiceStatus(Long id, ServiceStatus status, String actorEmail) {
+        if (status == null) {
+            throw new IllegalArgumentException("Service progress is required.");
+        }
+        ServiceRecord record = getRequiredServiceRecord(id);
+        record.setServiceStatus(status);
+        ServiceRecord saved = serviceRecordRepository.save(record);
+        auditService.log(AuditAction.SERVICE_UPDATED, actorEmail,
+                saved.getVehicle().getVehicleNumber(), "Service progress updated.");
+        return saved;
+    }
+
+    @Override
     public void deleteServiceRecord(Long id, String actorEmail) {
         ServiceRecord record = getRequiredServiceRecord(id);
         if (invoiceRepository.existsByServiceRecordId(id)) {
@@ -92,7 +120,12 @@ public class ServiceRecordServiceImpl implements ServiceRecordService {
         record.setServiceDate(form.getServiceDate());
         record.setMileageAtService(form.getMileageAtService());
         record.setServiceCenter(StringUtils.hasText(form.getServiceCenter()) ? form.getServiceCenter().trim() : null);
+        record.setServiceStatus(form.getServiceStatus() != null ? form.getServiceStatus() : ServiceStatus.PENDING);
         record.setCost(form.getCost());
         record.setNotes(StringUtils.hasText(form.getNotes()) ? form.getNotes().trim() : null);
+    }
+
+    private boolean isAdmin(AppUser user) {
+        return user != null && user.getRole() == Role.ADMIN;
     }
 }

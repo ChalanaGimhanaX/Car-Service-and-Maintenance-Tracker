@@ -1,13 +1,18 @@
 package com.carrack.track.service.impl;
 
 import com.carrack.track.dto.MaintenanceForm;
+import com.carrack.track.entity.AppUser;
 import com.carrack.track.entity.MaintenanceReminder;
+import com.carrack.track.entity.Vehicle;
 import com.carrack.track.enums.AuditAction;
 import com.carrack.track.enums.ReminderStatus;
+import com.carrack.track.enums.Role;
 import com.carrack.track.repository.MaintenanceReminderRepository;
+import com.carrack.track.repository.VehicleRepository;
 import com.carrack.track.service.AuditService;
 import com.carrack.track.service.MaintenanceReminderService;
 import java.time.LocalDateTime;
+import java.util.List;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -17,15 +22,19 @@ import org.springframework.util.StringUtils;
 public class MaintenanceReminderServiceImpl implements MaintenanceReminderService {
 
     private final MaintenanceReminderRepository maintenanceReminderRepository;
+    private final VehicleRepository vehicleRepository;
     private final AuditService auditService;
 
-    public MaintenanceReminderServiceImpl(MaintenanceReminderRepository maintenanceReminderRepository, AuditService auditService) {
+    public MaintenanceReminderServiceImpl(MaintenanceReminderRepository maintenanceReminderRepository,
+                                          VehicleRepository vehicleRepository,
+                                          AuditService auditService) {
         this.maintenanceReminderRepository = maintenanceReminderRepository;
+        this.vehicleRepository = vehicleRepository;
         this.auditService = auditService;
     }
 
     @Override
-    public Page<MaintenanceReminder> searchReminders(String keyword, String status, Pageable pageable) {
+    public Page<MaintenanceReminder> searchReminders(String keyword, String status, AppUser currentUser, Pageable pageable) {
         String cleanedKeyword = StringUtils.hasText(keyword) ? keyword.trim() : null;
         ReminderStatus parsedStatus = null;
         if (StringUtils.hasText(status)) {
@@ -35,6 +44,13 @@ public class MaintenanceReminderServiceImpl implements MaintenanceReminderServic
                 throw new IllegalArgumentException("Invalid reminder status.");
             }
         }
+        if (!isAdmin(currentUser)) {
+            List<String> vehicleNumbers = vehicleNumbersFor(currentUser);
+            if (vehicleNumbers.isEmpty()) {
+                return Page.empty(pageable);
+            }
+            return maintenanceReminderRepository.searchRemindersForVehicles(vehicleNumbers, cleanedKeyword, parsedStatus, pageable);
+        }
         return maintenanceReminderRepository.searchReminders(cleanedKeyword, parsedStatus, pageable);
     }
 
@@ -43,6 +59,15 @@ public class MaintenanceReminderServiceImpl implements MaintenanceReminderServic
         MaintenanceReminder reminder = maintenanceReminderRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Reminder not found."));
         if (reminder.getDeletedAt() != null) {
+            throw new IllegalArgumentException("Reminder not found.");
+        }
+        return reminder;
+    }
+
+    @Override
+    public MaintenanceReminder getRequiredReminder(Long id, AppUser currentUser) {
+        MaintenanceReminder reminder = getRequiredReminder(id);
+        if (!isAdmin(currentUser) && !vehicleNumbersFor(currentUser).contains(reminder.getVehicleNumber())) {
             throw new IllegalArgumentException("Reminder not found.");
         }
         return reminder;
@@ -92,5 +117,15 @@ public class MaintenanceReminderServiceImpl implements MaintenanceReminderServic
 
     private String normalizeVehicleNumber(String vehicleNumber) {
         return vehicleNumber.trim().replaceAll("\\s+", " ").toUpperCase();
+    }
+
+    private List<String> vehicleNumbersFor(AppUser user) {
+        return vehicleRepository.findByOwnerIdAndDeletedAtIsNullOrderByVehicleNumberAsc(user.getId()).stream()
+                .map(Vehicle::getVehicleNumber)
+                .toList();
+    }
+
+    private boolean isAdmin(AppUser user) {
+        return user != null && user.getRole() == Role.ADMIN;
     }
 }

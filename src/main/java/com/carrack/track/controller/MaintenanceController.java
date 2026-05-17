@@ -1,6 +1,7 @@
 package com.carrack.track.controller;
 
 import com.carrack.track.dto.MaintenanceForm;
+import com.carrack.track.entity.AppUser;
 import com.carrack.track.entity.MaintenanceReminder;
 import com.carrack.track.enums.ReminderStatus;
 import com.carrack.track.service.AppUserPrincipal;
@@ -10,6 +11,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -34,9 +36,10 @@ public class MaintenanceController {
     public String list(@RequestParam(value = "q", required = false) String q,
                        @RequestParam(value = "status", required = false) String status,
                        @RequestParam(value = "page", defaultValue = "0") int page,
+                       @AuthenticationPrincipal AppUserPrincipal principal,
                        Model model) {
         Pageable pageable = PageRequest.of(page, 8, Sort.by(Sort.Direction.ASC, "reminderDate"));
-        Page<MaintenanceReminder> reminders = maintenanceReminderService.searchReminders(q, status, pageable);
+        Page<MaintenanceReminder> reminders = maintenanceReminderService.searchReminders(q, status, currentUser(principal), pageable);
         model.addAttribute("remindersPage", reminders);
         model.addAttribute("keyword", q);
         model.addAttribute("selectedStatus", status);
@@ -45,6 +48,7 @@ public class MaintenanceController {
     }
 
     @GetMapping("/maintenance/new")
+    @PreAuthorize("hasRole('ADMIN')")
     public String create(Model model) {
         model.addAttribute("maintenanceForm", new MaintenanceForm());
         model.addAttribute("statusValues", ReminderStatus.values());
@@ -53,6 +57,7 @@ public class MaintenanceController {
     }
 
     @PostMapping("/maintenance")
+    @PreAuthorize("hasRole('ADMIN')")
     public String store(@Valid @ModelAttribute("maintenanceForm") MaintenanceForm maintenanceForm,
                         BindingResult bindingResult,
                         @AuthenticationPrincipal AppUserPrincipal principal,
@@ -77,12 +82,15 @@ public class MaintenanceController {
     }
 
     @GetMapping("/maintenance/{id}")
-    public String detail(@PathVariable Long id, Model model) {
-        model.addAttribute("reminder", maintenanceReminderService.getRequiredReminder(id));
+    public String detail(@PathVariable Long id,
+                         @AuthenticationPrincipal AppUserPrincipal principal,
+                         Model model) {
+        model.addAttribute("reminder", maintenanceReminderService.getRequiredReminder(id, currentUser(principal)));
         return "maintenance/detail";
     }
 
     @GetMapping("/maintenance/{id}/edit")
+    @PreAuthorize("hasRole('ADMIN')")
     public String edit(@PathVariable Long id, Model model) {
         MaintenanceReminder reminder = maintenanceReminderService.getRequiredReminder(id);
         model.addAttribute("reminderId", id);
@@ -93,6 +101,7 @@ public class MaintenanceController {
     }
 
     @PostMapping("/maintenance/{id}/edit")
+    @PreAuthorize("hasRole('ADMIN')")
     public String update(@PathVariable Long id,
                          @Valid @ModelAttribute("maintenanceForm") MaintenanceForm maintenanceForm,
                          BindingResult bindingResult,
@@ -120,6 +129,7 @@ public class MaintenanceController {
     }
 
     @PostMapping("/maintenance/{id}/delete")
+    @PreAuthorize("hasRole('ADMIN')")
     public String delete(@PathVariable Long id,
                          @AuthenticationPrincipal AppUserPrincipal principal,
                          RedirectAttributes redirectAttributes) {
@@ -142,5 +152,12 @@ public class MaintenanceController {
 
     private String currentActor(AppUserPrincipal principal) {
         return principal != null ? principal.getUsername() : "system@local";
+    }
+
+    private AppUser currentUser(AppUserPrincipal principal) {
+        if (principal == null) {
+            throw new IllegalArgumentException("Signed-in user is required.");
+        }
+        return principal.getUser();
     }
 }

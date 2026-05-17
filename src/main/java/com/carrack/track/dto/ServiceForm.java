@@ -1,5 +1,6 @@
 package com.carrack.track.dto;
 
+import com.carrack.track.enums.ServiceStatus;
 import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.Digits;
 import jakarta.validation.constraints.Min;
@@ -30,6 +31,9 @@ public class ServiceForm {
     @Size(max = 150, message = "Service center must be 150 characters or fewer.")
     private String serviceCenter;
 
+    @NotNull(message = "Service progress is required.")
+    private ServiceStatus serviceStatus = ServiceStatus.PENDING;
+
     @NotNull(message = "Cost is required.")
     @DecimalMin(value = "0.00", message = "Cost cannot be negative.")
     @Digits(integer = 8, fraction = 2, message = "Cost must be a valid amount.")
@@ -52,6 +56,9 @@ public class ServiceForm {
 
     public String getServiceCenter() { return serviceCenter; }
     public void setServiceCenter(String serviceCenter) { this.serviceCenter = serviceCenter; }
+
+    public ServiceStatus getServiceStatus() { return serviceStatus; }
+    public void setServiceStatus(ServiceStatus serviceStatus) { this.serviceStatus = serviceStatus; }
 
     public BigDecimal getCost() { return cost; }
     public void setCost(BigDecimal cost) { this.cost = cost; }

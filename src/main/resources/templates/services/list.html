@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en" xmlns:th="http://www.thymeleaf.org"
+<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
       th:replace="~{layouts/base :: layout('Service Records', ~{::section})}">
 <section>
     <div class="mb-6 flex flex-wrap items-start justify-between gap-4">
@@ -8,7 +8,7 @@
             <h1 class="text-3xl font-semibold text-white">Service Records</h1>
             <p class="text-sm text-slate-400">View and manage all vehicle service history.</p>
         </div>
-        <a class="action-button bg-emerald-500 text-slate-950 hover:bg-emerald-400" th:href="@{/services/new}">
+        <a sec:authorize="hasRole('ADMIN')" class="action-button bg-emerald-500 text-slate-950 hover:bg-emerald-400" th:href="@{/services/new}">
             <i data-lucide="plus" class="h-4 w-4"></i>Add service record
         </a>
     </div>
@@ -38,13 +38,14 @@
                 <th class="px-4 py-3 text-left">Date</th>
                 <th class="px-4 py-3 text-left">Mileage</th>
                 <th class="px-4 py-3 text-left">Center</th>
+                <th class="px-4 py-3 text-left">Progress</th>
                 <th class="px-4 py-3 text-left">Cost (LKR)</th>
                 <th class="px-4 py-3 text-left">Actions</th>
             </tr>
             </thead>
             <tbody>
             <tr th:if="${recordsPage.isEmpty()}">
-                <td class="px-4 py-8 text-center text-slate-500" colspan="7">No service records found.</td>
+                <td class="px-4 py-8 text-center text-slate-500" colspan="8">No service records found.</td>
             </tr>
             <tr class="border-t border-white/5 hover:bg-white/5"
                 th:each="record : ${recordsPage.content}">
@@ -58,6 +59,12 @@
                 <td class="px-4 py-3" th:text="${#temporals.format(record.serviceDate, 'dd MMM yyyy')}"></td>
                 <td class="px-4 py-3" th:text="${record.mileageAtService + ' km'}"></td>
                 <td class="px-4 py-3" th:text="${record.serviceCenter != null ? record.serviceCenter : '-'}"></td>
+                <td class="px-4 py-3">
+                    <span class="badge"
+                          th:with="status=${record.serviceStatus != null ? record.serviceStatus.name() : 'COMPLETED'}"
+                          th:classappend="${status == 'COMPLETED'} ? ' badge-active' : (${status == 'PENDING'} ? ' badge-pending' : (${status == 'WAITING_FOR_PARTS'} ? ' badge-suspended' : ' badge-info'))"
+                          th:text="${status}">IN_PROGRESS</span>
+                </td>
                 <td class="px-4 py-3" th:text="${#numbers.formatDecimal(record.cost, 1, 'COMMA', 2, 'POINT')}"></td>
                 <td class="px-4 py-3">
                     <div class="flex flex-wrap gap-2">
@@ -65,11 +72,11 @@
                            th:href="@{/services/{id}(id=${record.id})}">
                             <i data-lucide="eye" class="h-4 w-4"></i>View
                         </a>
-                        <a class="action-button bg-white/5 text-slate-200 hover:bg-white/10"
+                        <a sec:authorize="hasRole('ADMIN')" class="action-button bg-white/5 text-slate-200 hover:bg-white/10"
                            th:href="@{/services/{id}/edit(id=${record.id})}">
                             <i data-lucide="pencil" class="h-4 w-4"></i>Edit
                         </a>
-                        <form th:action="@{/services/{id}/delete(id=${record.id})}" method="post">
+                        <form sec:authorize="hasRole('ADMIN')" th:action="@{/services/{id}/delete(id=${record.id})}" method="post">
                             <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
                             <button class="action-button bg-rose-500/15 text-rose-200 hover:bg-rose-500/25" type="submit">
                                 <i data-lucide="trash-2" class="h-4 w-4"></i>Delete

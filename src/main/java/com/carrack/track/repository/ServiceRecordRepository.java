@@ -31,4 +31,18 @@ public interface ServiceRecordRepository extends JpaRepository<ServiceRecord, Lo
     Page<ServiceRecord> searchRecords(@Param("keyword") String keyword,
                                       @Param("vehicleId") Long vehicleId,
                                       Pageable pageable);
+
+    @Query("""
+            select s from ServiceRecord s
+            where s.vehicle.owner.id = :ownerId
+              and (:vehicleId is null or s.vehicle.id = :vehicleId)
+              and (:keyword is null
+                   or lower(s.serviceType) like lower(concat('%', :keyword, '%'))
+                   or lower(coalesce(s.serviceCenter, '')) like lower(concat('%', :keyword, '%'))
+                   or lower(s.vehicle.vehicleNumber) like lower(concat('%', :keyword, '%')))
+            """)
+    Page<ServiceRecord> searchRecordsByOwner(@Param("ownerId") Long ownerId,
+                                             @Param("keyword") String keyword,
+                                             @Param("vehicleId") Long vehicleId,
+                                             Pageable pageable);
 }

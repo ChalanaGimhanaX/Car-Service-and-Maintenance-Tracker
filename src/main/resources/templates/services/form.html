@@ -52,6 +52,14 @@
                 <p class="mt-1 text-xs text-rose-300" th:if="${#fields.hasErrors('cost')}" th:errors="*{cost}"></p>
             </div>
 
+            <div>
+                <label class="mb-2 block text-sm font-medium text-slate-300" for="serviceStatus">Service progress</label>
+                <select class="form-input" id="serviceStatus" th:field="*{serviceStatus}">
+                    <option th:each="status : ${serviceStatuses}" th:value="${status}" th:text="${status}"></option>
+                </select>
+                <p class="mt-1 text-xs text-rose-300" th:if="${#fields.hasErrors('serviceStatus')}" th:errors="*{serviceStatus}"></p>
+            </div>
+
             <div class="md:col-span-2">
                 <label class="mb-2 block text-sm font-medium text-slate-300" for="serviceCenter">Service center</label>
                 <input class="form-input" id="serviceCenter" type="text" th:field="*{serviceCenter}"

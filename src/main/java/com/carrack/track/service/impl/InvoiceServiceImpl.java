@@ -1,10 +1,12 @@
 package com.carrack.track.service.impl;
 
 import com.carrack.track.dto.InvoiceForm;
+import com.carrack.track.entity.AppUser;
 import com.carrack.track.entity.Invoice;
 import com.carrack.track.entity.ServiceRecord;
 import com.carrack.track.enums.AuditAction;
 import com.carrack.track.enums.PaymentStatus;
+import com.carrack.track.enums.Role;
 import com.carrack.track.repository.InvoiceRepository;
 import com.carrack.track.repository.ServiceRecordRepository;
 import com.carrack.track.service.AuditService;
@@ -30,7 +32,7 @@ public class InvoiceServiceImpl implements InvoiceService {
     }
 
     @Override
-    public Page<Invoice> searchInvoices(String keyword, String status, Pageable pageable) {
+    public Page<Invoice> searchInvoices(String keyword, String status, AppUser currentUser, Pageable pageable) {
         String cleanedKeyword = StringUtils.hasText(keyword) ? keyword.trim() : null;
         PaymentStatus parsedStatus = null;
         if (StringUtils.hasText(status)) {
@@ -40,6 +42,9 @@ public class InvoiceServiceImpl implements InvoiceService {
                 throw new IllegalArgumentException("Invalid payment status.");
             }
         }
+        if (!isAdmin(currentUser)) {
+            return invoiceRepository.searchInvoicesByOwner(currentUser.getId(), cleanedKeyword, parsedStatus, pageable);
+        }
         return invoiceRepository.searchInvoices(cleanedKeyword, parsedStatus, pageable);
     }
 
@@ -47,6 +52,16 @@ public class InvoiceServiceImpl implements InvoiceService {
     public Invoice getRequiredInvoice(Long id) {
         return invoiceRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Invoice not found."));
+    }
+
+    @Override
+    public Invoice getRequiredInvoice(Long id, AppUser currentUser) {
+        Invoice invoice = getRequiredInvoice(id);
+        if (!isAdmin(currentUser)
+                && !invoice.getServiceRecord().getVehicle().getOwner().getId().equals(currentUser.getId())) {
+            throw new IllegalArgumentException("Invoice not found.");
+        }
+        return invoice;
     }
 
     @Override
@@ -121,5 +136,9 @@ public class InvoiceServiceImpl implements InvoiceService {
 
     private String normalizeInvoiceNumber(String invoiceNumber) {
         return invoiceNumber.trim().replaceAll("\\s+", " ").toUpperCase();
+    }
+
+    private boolean isAdmin(AppUser user) {
+        return user != null && user.getRole() == Role.ADMIN;
     }
 }

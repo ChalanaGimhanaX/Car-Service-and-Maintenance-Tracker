@@ -23,6 +23,20 @@ public interface MaintenanceReminderRepository extends JpaRepository<Maintenance
                                               @Param("status") ReminderStatus status,
                                               Pageable pageable);
 
+    @Query("""
+            select r from MaintenanceReminder r
+            where r.deletedAt is null
+              and r.vehicleNumber in :vehicleNumbers
+              and (:status is null or r.status = :status)
+              and (:keyword is null
+                   or lower(r.vehicleNumber) like lower(concat('%', :keyword, '%'))
+                   or lower(r.title) like lower(concat('%', :keyword, '%')))
+            """)
+    Page<MaintenanceReminder> searchRemindersForVehicles(@Param("vehicleNumbers") List<String> vehicleNumbers,
+                                                         @Param("keyword") String keyword,
+                                                         @Param("status") ReminderStatus status,
+                                                         Pageable pageable);
+
     long countByDeletedAtIsNull();
 
     long countByVehicleNumberInAndDeletedAtIsNull(List<String> vehicleNumbers);

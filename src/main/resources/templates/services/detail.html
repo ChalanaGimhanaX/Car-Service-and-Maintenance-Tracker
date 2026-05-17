@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en" xmlns:th="http://www.thymeleaf.org"
+<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
       th:replace="~{layouts/base :: layout('Service Detail', ~{::section})}">
 <section>
     <div class="mb-6 flex flex-wrap items-start justify-between gap-4">
@@ -9,15 +9,15 @@
             <p class="text-sm text-slate-400">Full details of this service entry.</p>
         </div>
         <div class="flex flex-wrap gap-2">
-            <a class="action-button bg-emerald-500 text-slate-950 hover:bg-emerald-400"
+            <a sec:authorize="hasRole('ADMIN')" class="action-button bg-emerald-500 text-slate-950 hover:bg-emerald-400"
                th:href="@{/invoices/new(serviceRecordId=${record.id})}">
                 <i data-lucide="receipt" class="h-4 w-4"></i>Create invoice
             </a>
-            <a class="action-button bg-white/5 text-slate-200 hover:bg-white/10"
+            <a sec:authorize="hasRole('ADMIN')" class="action-button bg-white/5 text-slate-200 hover:bg-white/10"
                th:href="@{/services/{id}/edit(id=${record.id})}">
                 <i data-lucide="pencil" class="h-4 w-4"></i>Edit
             </a>
-            <form th:action="@{/services/{id}/delete(id=${record.id})}" method="post"
+            <form sec:authorize="hasRole('ADMIN')" th:action="@{/services/{id}/delete(id=${record.id})}" method="post"
                   onsubmit="return confirm('Delete this service record?')">
                 <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
                 <button class="action-button bg-rose-500/20 text-rose-300 hover:bg-rose-500/30" type="submit">
@@ -65,6 +65,14 @@
             <p class="text-white" th:text="${#numbers.formatDecimal(record.cost, 1, 2)}"></p>
         </div>
 
+        <div>
+            <p class="text-xs uppercase tracking-wider text-slate-500 mb-1">Service progress</p>
+            <span class="badge"
+                  th:with="status=${record.serviceStatus != null ? record.serviceStatus.name() : 'COMPLETED'}"
+                  th:classappend="${status == 'COMPLETED'} ? ' badge-active' : (${status == 'PENDING'} ? ' badge-pending' : (${status == 'WAITING_FOR_PARTS'} ? ' badge-suspended' : ' badge-info'))"
+                  th:text="${status}">IN_PROGRESS</span>
+        </div>
+
         <div class="md:col-span-2">
             <p class="text-xs uppercase tracking-wider text-slate-500 mb-1">Notes</p>
             <p class="text-white" th:text="${record.notes != null ? record.notes : '-'}"></p>
@@ -81,5 +89,25 @@
         </div>
 
     </div>
+
+    <form sec:authorize="hasRole('ADMIN')" class="mt-6 rounded-md border soft-border glass-panel p-5 service-progress-form"
+          th:action="@{/services/{id}/status(id=${record.id})}" method="post">
+        <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
+        <div>
+            <p class="text-xs uppercase tracking-[0.18em] text-slate-500">Workshop progress</p>
+            <h2 class="mt-1 text-lg font-semibold text-white">Update current vehicle status</h2>
+        </div>
+        <div class="service-progress-controls">
+            <select class="form-input" name="serviceStatus">
+                <option th:each="status : ${serviceStatuses}"
+                        th:value="${status}"
+                        th:text="${status}"
+                        th:selected="${record.serviceStatus == status}"></option>
+            </select>
+            <button class="action-button bg-emerald-500 text-slate-950 hover:bg-emerald-400" type="submit">
+                <i data-lucide="save" class="h-4 w-4"></i>Save progress
+            </button>
+        </div>
+    </form>
 </section>
 </html>

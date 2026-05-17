@@ -1,7 +1,10 @@
 package com.carrack.track.entity;
 
+import com.carrack.track.enums.ServiceStatus;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -38,6 +41,10 @@ public class ServiceRecord {
     @Column(name = "service_center", length = 150)
     private String serviceCenter;
 
+    @Enumerated(EnumType.STRING)
+    @Column(name = "service_status", length = 30)
+    private ServiceStatus serviceStatus;
+
     @Column(nullable = false, precision = 10, scale = 2)
     private BigDecimal cost;
 
@@ -55,6 +62,7 @@ public class ServiceRecord {
         LocalDateTime now = LocalDateTime.now();
         if (createdAt == null) createdAt = now;
         updatedAt = now;
+        if (serviceStatus == null) serviceStatus = ServiceStatus.PENDING;
     }
 
     @PreUpdate
@@ -79,6 +87,9 @@ public class ServiceRecord {
 
     public String getServiceCenter() { return serviceCenter; }
     public void setServiceCenter(String serviceCenter) { this.serviceCenter = serviceCenter; }
+
+    public ServiceStatus getServiceStatus() { return serviceStatus; }
+    public void setServiceStatus(ServiceStatus serviceStatus) { this.serviceStatus = serviceStatus; }
 
     public BigDecimal getCost() { return cost; }
     public void setCost(BigDecimal cost) { this.cost = cost; }

@@ -1,6 +1,7 @@
 package com.carrack.track.controller;
 
 import com.carrack.track.dto.InvoiceForm;
+import com.carrack.track.entity.AppUser;
 import com.carrack.track.entity.Invoice;
 import com.carrack.track.entity.ServiceRecord;
 import com.carrack.track.enums.PaymentMethod;
@@ -13,6 +14,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -41,9 +43,10 @@ public class InvoiceController {
     public String list(@RequestParam(value = "q", required = false) String q,
                        @RequestParam(value = "status", required = false) String status,
                        @RequestParam(value = "page", defaultValue = "0") int page,
+                       @AuthenticationPrincipal AppUserPrincipal principal,
                        Model model) {
         Pageable pageable = PageRequest.of(page, 8, Sort.by(Sort.Direction.DESC, "invoiceDate"));
-        Page<Invoice> invoicesPage = invoiceService.searchInvoices(q, status, pageable);
+        Page<Invoice> invoicesPage = invoiceService.searchInvoices(q, status, currentUser(principal), pageable);
         model.addAttribute("invoicesPage", invoicesPage);
         model.addAttribute("keyword", q);
         model.addAttribute("selectedStatus", status);
@@ -52,6 +55,7 @@ public class InvoiceController {
     }
 
     @GetMapping("/invoices/new")
+    @PreAuthorize("hasRole('ADMIN')")
     public String create(@RequestParam(value = "serviceRecordId", required = false) Long serviceRecordId,
                          Model model) {
         InvoiceForm form = new InvoiceForm();
@@ -65,6 +69,7 @@ public class InvoiceController {
     }
 
     @PostMapping("/invoices")
+    @PreAuthorize("hasRole('ADMIN')")
     public String store(@Valid @ModelAttribute("invoiceForm") InvoiceForm invoiceForm,
                         BindingResult bindingResult,
                         @AuthenticationPrincipal AppUserPrincipal principal,
@@ -89,12 +94,15 @@ public class InvoiceController {
     }
 
     @GetMapping("/invoices/{id}")
-    public String detail(@PathVariable Long id, Model model) {
-        model.addAttribute("invoice", invoiceService.getRequiredInvoice(id));
+    public String detail(@PathVariable Long id,
+                         @AuthenticationPrincipal AppUserPrincipal principal,
+                         Model model) {
+        model.addAttribute("invoice", invoiceService.getRequiredInvoice(id, currentUser(principal)));
         return "invoices/detail";
     }
 
     @GetMapping("/invoices/{id}/edit")
+    @PreAuthorize("hasRole('ADMIN')")
     public String edit(@PathVariable Long id, Model model) {
         Invoice invoice = invoiceService.getRequiredInvoice(id);
         model.addAttribute("invoiceId", id);
@@ -105,6 +113,7 @@ public class InvoiceController {
     }
 
     @PostMapping("/invoices/{id}/edit")
+    @PreAuthorize("hasRole('ADMIN')")
     public String update(@PathVariable Long id,
                          @Valid @ModelAttribute("invoiceForm") InvoiceForm invoiceForm,
                          BindingResult bindingResult,
@@ -132,6 +141,7 @@ public class InvoiceController {
     }
 
     @PostMapping("/invoices/{id}/delete")
+    @PreAuthorize("hasRole('ADMIN')")
     public String delete(@PathVariable Long id,
                          @AuthenticationPrincipal AppUserPrincipal principal,
                          RedirectAttributes redirectAttributes) {
@@ -161,5 +171,12 @@ public class InvoiceController {
 
     private String currentActor(AppUserPrincipal principal) {
         return principal != null ? principal.getUsername() : "system@local";
+    }
+
+    private AppUser currentUser(AppUserPrincipal principal) {
+        if (principal == null) {
+            throw new IllegalArgumentException("Signed-in user is required.");
+        }
+        return principal.getUser();
     }
 }

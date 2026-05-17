@@ -31,4 +31,18 @@ public interface InvoiceRepository extends JpaRepository<Invoice, Long> {
     Page<Invoice> searchInvoices(@Param("keyword") String keyword,
                                  @Param("status") PaymentStatus status,
                                  Pageable pageable);
+
+    @Query("""
+            select i from Invoice i
+            where i.serviceRecord.vehicle.owner.id = :ownerId
+              and (:status is null or i.paymentStatus = :status)
+              and (:keyword is null
+                   or lower(i.invoiceNumber) like lower(concat('%', :keyword, '%'))
+                   or lower(i.serviceRecord.vehicle.vehicleNumber) like lower(concat('%', :keyword, '%'))
+                   or lower(i.serviceRecord.serviceType) like lower(concat('%', :keyword, '%')))
+            """)
+    Page<Invoice> searchInvoicesByOwner(@Param("ownerId") Long ownerId,
+                                        @Param("keyword") String keyword,
+                                        @Param("status") PaymentStatus status,
+                                        Pageable pageable);
 }
