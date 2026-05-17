@@ -1,3 +1,4 @@
+// DTO class for capturing and validating service record form input
 package com.carrack.track.dto;
 
 import jakarta.validation.constraints.DecimalMin;
