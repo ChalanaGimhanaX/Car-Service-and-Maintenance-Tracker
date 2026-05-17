@@ -1,119 +1,152 @@
 <!DOCTYPE html>
 <html lang="en" xmlns:th="http://www.thymeleaf.org"
-      th:replace="~{layouts/base :: layout('Dashboard', ~{::section})}">
-<section>
-    <div class="mb-8 flex flex-col gap-2">
-        <p class="text-sm uppercase tracking-[0.22em] text-emerald-300">My overview</p>
-        <h1 class="text-3xl font-semibold text-white">Client dashboard</h1>
-        <p class="text-sm text-slate-400">Quick summary of your vehicles, services, reminders, and invoices.</p>
+      th:replace="~{layouts/base :: layout('My Dashboard', ~{::section})}">
+<section class="client-dashboard">
+    <div class="client-dashboard-header">
+        <div>
+            <p class="text-sm uppercase tracking-[0.22em] text-emerald-300">My account</p>
+            <h1 class="text-3xl font-semibold text-white">My dashboard</h1>
+            <p class="text-sm text-slate-400">Your vehicles, recent services, reminders, and invoices in one place.</p>
+        </div>
+        <a class="action-button bg-emerald-500 text-slate-950 hover:bg-emerald-400" th:href="@{/vehicles}">
+            <i data-lucide="truck" class="h-4 w-4"></i>My vehicles
+        </a>
     </div>
 
-    <div class="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
-        <div class="rounded-md border soft-border glass-panel p-5">
-            <p class="text-xs uppercase tracking-[0.18em] text-slate-500">My vehicles</p>
-            <p class="mt-3 text-3xl font-semibold text-white" th:text="${snapshot.totalVehicles}">0</p>
-        </div>
-        <div class="rounded-md border soft-border glass-panel p-5">
-            <p class="text-xs uppercase tracking-[0.18em] text-slate-500">Service records</p>
-            <p class="mt-3 text-3xl font-semibold text-sky-300" th:text="${snapshot.totalServices}">0</p>
-        </div>
-        <div class="rounded-md border soft-border glass-panel p-5">
-            <p class="text-xs uppercase tracking-[0.18em] text-slate-500">Reminders</p>
-            <p class="mt-3 text-3xl font-semibold text-amber-300" th:text="${snapshot.totalReminders}">0</p>
-        </div>
-        <div class="rounded-md border soft-border glass-panel p-5">
-            <p class="text-xs uppercase tracking-[0.18em] text-slate-500">Invoices</p>
-            <p class="mt-3 text-3xl font-semibold text-white" th:text="${snapshot.totalInvoices}">0</p>
-        </div>
+    <div class="client-summary-grid">
+        <a class="client-stat-card" th:href="@{/vehicles}">
+            <div class="client-stat-icon">
+                <i data-lucide="truck" class="h-5 w-5"></i>
+            </div>
+            <div>
+                <p class="text-xs uppercase tracking-[0.18em] text-slate-500">Vehicles</p>
+                <p class="mt-2 text-3xl font-semibold text-white" th:text="${snapshot.totalVehicles}">0</p>
+            </div>
+        </a>
+        <a class="client-stat-card" th:href="@{/services}">
+            <div class="client-stat-icon">
+                <i data-lucide="wrench" class="h-5 w-5"></i>
+            </div>
+            <div>
+                <p class="text-xs uppercase tracking-[0.18em] text-slate-500">Services</p>
+                <p class="mt-2 text-3xl font-semibold text-white" th:text="${snapshot.totalServices}">0</p>
+            </div>
+        </a>
+        <a class="client-stat-card" th:href="@{/maintenance}">
+            <div class="client-stat-icon">
+                <i data-lucide="bell-ring" class="h-5 w-5"></i>
+            </div>
+            <div>
+                <p class="text-xs uppercase tracking-[0.18em] text-slate-500">Reminders</p>
+                <p class="mt-2 text-3xl font-semibold text-white" th:text="${snapshot.totalReminders}">0</p>
+            </div>
+        </a>
+        <a class="client-stat-card" th:href="@{/invoices}">
+            <div class="client-stat-icon">
+                <i data-lucide="receipt" class="h-5 w-5"></i>
+            </div>
+            <div>
+                <p class="text-xs uppercase tracking-[0.18em] text-slate-500">Invoices</p>
+                <p class="mt-2 text-3xl font-semibold text-white" th:text="${snapshot.totalInvoices}">0</p>
+            </div>
+        </a>
     </div>
 
-    <div class="mt-8 grid gap-6 lg:grid-cols-[1.15fr_0.85fr]">
-        <section class="rounded-md border soft-border glass-panel p-5">
-            <div class="flex items-center justify-between">
-                <h2 class="text-lg font-semibold text-white">Recent services</h2>
+    <div class="client-panel-grid">
+        <section class="client-panel">
+            <div class="client-panel-header">
+                <div>
+                    <p class="text-xs uppercase tracking-[0.18em] text-slate-500">Service history</p>
+                    <h2 class="text-lg font-semibold text-white">Recent services</h2>
+                </div>
                 <a class="action-button bg-white/5 text-slate-200 hover:bg-white/10" th:href="@{/services}">
-                    <i data-lucide="wrench" class="h-4 w-4"></i>Open services
+                    <i data-lucide="chevron-right" class="h-4 w-4"></i>View
                 </a>
             </div>
-            <div class="mt-4 overflow-hidden rounded-md border soft-border">
-                <table class="min-w-full divide-y divide-white/10 text-sm">
-                    <thead class="bg-slate-900/90 text-slate-400">
-                    <tr>
-                        <th class="px-4 py-3 text-left font-medium">Vehicle</th>
-                        <th class="px-4 py-3 text-left font-medium">Service</th>
-                        <th class="px-4 py-3 text-left font-medium">Date</th>
-                        <th class="px-4 py-3 text-left font-medium">Cost</th>
-                    </tr>
-                    </thead>
-                    <tbody class="divide-y divide-white/10 bg-slate-950/40">
-                    <tr class="table-row" th:each="record : ${snapshot.recentServices}">
-                        <td class="px-4 py-3 text-slate-100" th:text="${record.vehicle.vehicleNumber}">WP CAB-4582</td>
-                        <td class="px-4 py-3 text-slate-300" th:text="${record.serviceType}">Oil Change</td>
-                        <td class="px-4 py-3 text-slate-400" th:text="${#temporals.format(record.serviceDate, 'dd MMM yyyy')}">16 May 2026</td>
-                        <td class="px-4 py-3 text-slate-300" th:text="${#numbers.formatDecimal(record.cost, 1, 'COMMA', 2, 'POINT')}">7,500.00</td>
-                    </tr>
-                    <tr th:if="${#lists.isEmpty(snapshot.recentServices)}">
-                        <td class="px-4 py-4 text-slate-400" colspan="4">No service records yet.</td>
-                    </tr>
-                    </tbody>
-                </table>
+
+            <div class="client-list">
+                <a class="client-list-item" th:each="record : ${snapshot.recentServices}"
+                   th:href="@{/services/{id}(id=${record.id})}">
+                    <div>
+                        <p class="font-medium text-slate-100" th:text="${record.serviceType}">Oil Change</p>
+                        <p class="text-sm text-slate-500" th:text="${record.vehicle.vehicleNumber + ' - ' + record.vehicle.brand + ' ' + record.vehicle.model}">WP CAB-4582</p>
+                    </div>
+                    <div class="client-list-meta">
+                        <p th:text="${#temporals.format(record.serviceDate, 'dd MMM yyyy')}">16 May 2026</p>
+                        <p th:text="${#numbers.formatDecimal(record.cost, 1, 'COMMA', 2, 'POINT') + ' LKR'}">7,500.00 LKR</p>
+                    </div>
+                </a>
+                <div th:if="${#lists.isEmpty(snapshot.recentServices)}" class="client-empty-state">
+                    No service records available yet.
+                </div>
             </div>
         </section>
 
-        <section class="rounded-md border soft-border glass-panel p-5">
-            <h2 class="text-lg font-semibold text-white">Upcoming reminders</h2>
-            <div class="mt-4 space-y-3">
-                <div class="rounded-md border soft-border bg-slate-950/55 p-4" th:each="reminder : ${snapshot.upcomingReminders}">
-                    <div class="flex items-center justify-between gap-3">
-                        <p class="font-medium text-slate-100" th:text="${reminder.title}">Next oil change</p>
-                        <span class="text-xs text-slate-500" th:text="${#temporals.format(reminder.reminderDate, 'dd MMM yyyy')}">20 May 2026</span>
-                    </div>
-                    <p class="mt-1 text-sm text-slate-400" th:text="${reminder.vehicleNumber}">WP CAB-4582</p>
-                    <p class="mt-1 text-sm text-slate-500" th:text="${reminder.notes != null ? reminder.notes : 'No note available.'}">Notes</p>
+        <section class="client-panel">
+            <div class="client-panel-header">
+                <div>
+                    <p class="text-xs uppercase tracking-[0.18em] text-slate-500">Follow up</p>
+                    <h2 class="text-lg font-semibold text-white">Upcoming reminders</h2>
                 </div>
-                <div th:if="${#lists.isEmpty(snapshot.upcomingReminders)}" class="rounded-md border soft-border bg-slate-950/55 p-4 text-sm text-slate-400">
-                    No reminders recorded yet.
+                <a class="action-button bg-white/5 text-slate-200 hover:bg-white/10" th:href="@{/maintenance}">
+                    <i data-lucide="chevron-right" class="h-4 w-4"></i>View
+                </a>
+            </div>
+
+            <div class="client-list">
+                <a class="client-list-item" th:each="reminder : ${snapshot.upcomingReminders}"
+                   th:href="@{/maintenance/{id}(id=${reminder.id})}">
+                    <div>
+                        <p class="font-medium text-slate-100" th:text="${reminder.title}">Next oil change</p>
+                        <p class="text-sm text-slate-500" th:text="${reminder.vehicleNumber}">WP CAB-4582</p>
+                    </div>
+                    <div class="client-list-meta">
+                        <p th:text="${#temporals.format(reminder.reminderDate, 'dd MMM yyyy')}">20 May 2026</p>
+                        <span class="badge"
+                              th:classappend="${reminder.status.name() == 'COMPLETED'} ? ' badge-active' : (${reminder.status.name() == 'DUE'} ? ' badge-suspended' : ' badge-pending')"
+                              th:text="${reminder.status}">UPCOMING</span>
+                    </div>
+                </a>
+                <div th:if="${#lists.isEmpty(snapshot.upcomingReminders)}" class="client-empty-state">
+                    No reminders available yet.
                 </div>
             </div>
         </section>
     </div>
 
-    <div class="mt-8 rounded-md border soft-border glass-panel p-5">
-        <div class="flex items-center justify-between">
-            <h2 class="text-lg font-semibold text-white">Recent invoices</h2>
+    <section class="client-panel">
+        <div class="client-panel-header">
+            <div>
+                <p class="text-xs uppercase tracking-[0.18em] text-slate-500">Billing</p>
+                <h2 class="text-lg font-semibold text-white">Recent invoices</h2>
+            </div>
             <a class="action-button bg-white/5 text-slate-200 hover:bg-white/10" th:href="@{/invoices}">
-                <i data-lucide="receipt" class="h-4 w-4"></i>Open invoices
+                <i data-lucide="chevron-right" class="h-4 w-4"></i>View
             </a>
         </div>
-        <div class="mt-4 overflow-hidden rounded-md border soft-border">
-            <table class="min-w-full divide-y divide-white/10 text-sm">
-                <thead class="bg-slate-900/90 text-slate-400">
-                <tr>
-                    <th class="px-4 py-3 text-left font-medium">Invoice</th>
-                    <th class="px-4 py-3 text-left font-medium">Vehicle</th>
-                    <th class="px-4 py-3 text-left font-medium">Date</th>
-                    <th class="px-4 py-3 text-left font-medium">Status</th>
-                    <th class="px-4 py-3 text-left font-medium">Amount</th>
-                </tr>
-                </thead>
-                <tbody class="divide-y divide-white/10 bg-slate-950/40">
-                <tr class="table-row" th:each="invoice : ${snapshot.recentInvoices}">
-                    <td class="px-4 py-3 text-slate-100" th:text="${invoice.invoiceNumber}">INV-1001</td>
-                    <td class="px-4 py-3 text-slate-300" th:text="${invoice.serviceRecord.vehicle.vehicleNumber}">WP CAB-4582</td>
-                    <td class="px-4 py-3 text-slate-400" th:text="${#temporals.format(invoice.invoiceDate, 'dd MMM yyyy')}">16 May 2026</td>
-                    <td class="px-4 py-3">
-                        <span class="badge"
-                              th:classappend="${invoice.paymentStatus.name() == 'PAID'} ? ' badge-active' : (${invoice.paymentStatus.name() == 'PENDING'} ? ' badge-pending' : ' badge-deleted')"
-                              th:text="${invoice.paymentStatus}">PAID</span>
-                    </td>
-                    <td class="px-4 py-3 text-slate-300" th:text="${#numbers.formatDecimal(invoice.totalAmount, 1, 'COMMA', 2, 'POINT')}">7,500.00</td>
-                </tr>
-                <tr th:if="${#lists.isEmpty(snapshot.recentInvoices)}">
-                    <td class="px-4 py-4 text-slate-400" colspan="5">No invoices available yet.</td>
-                </tr>
-                </tbody>
-            </table>
+
+        <div class="client-invoice-grid">
+            <a class="client-invoice-card" th:each="invoice : ${snapshot.recentInvoices}"
+               th:href="@{/invoices/{id}(id=${invoice.id})}">
+                <div class="client-panel-header">
+                    <div>
+                        <p class="font-medium text-slate-100" th:text="${invoice.invoiceNumber}">INV-1001</p>
+                        <p class="text-sm text-slate-500" th:text="${invoice.serviceRecord.vehicle.vehicleNumber}">WP CAB-4582</p>
+                    </div>
+                    <span class="badge"
+                          th:classappend="${invoice.paymentStatus.name() == 'PAID'} ? ' badge-active' : (${invoice.paymentStatus.name() == 'PENDING'} ? ' badge-pending' : ' badge-deleted')"
+                          th:text="${invoice.paymentStatus}">PAID</span>
+                </div>
+                <div class="client-invoice-amount">
+                    <span th:text="${#numbers.formatDecimal(invoice.totalAmount, 1, 'COMMA', 2, 'POINT')}">7,500.00</span>
+                    <span class="text-sm text-slate-500">LKR</span>
+                </div>
+                <p class="mt-1 text-sm text-slate-500" th:text="${#temporals.format(invoice.invoiceDate, 'dd MMM yyyy')}">16 May 2026</p>
+            </a>
+            <div th:if="${#lists.isEmpty(snapshot.recentInvoices)}" class="client-empty-state">
+                No invoices available yet.
+            </div>
         </div>
-    </div>
+    </section>
 </section>
 </html>
