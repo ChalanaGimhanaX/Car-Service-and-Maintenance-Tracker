@@ -1,3 +1,4 @@
+// Repository interface for database operations on service records
 package com.carrack.track.repository;
 
 import com.carrack.track.entity.ServiceRecord;
