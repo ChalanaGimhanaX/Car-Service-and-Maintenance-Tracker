@@ -1,3 +1,4 @@
+// ServiceRecord entity represents a vehicle service entry in the database
 package com.carrack.track.entity;
 
 import jakarta.persistence.Column;
