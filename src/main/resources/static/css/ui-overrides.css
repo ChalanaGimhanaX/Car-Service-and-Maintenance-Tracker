@@ -1,0 +1,263 @@
+body {
+    background: #020617;
+    color: #e5e7eb;
+}
+
+.app-shell {
+    min-height: 100vh;
+    position: relative;
+    color: #e5e7eb;
+    background:
+        radial-gradient(circle at top left, rgba(16, 185, 129, 0.16), transparent 30%),
+        radial-gradient(circle at top right, rgba(56, 189, 248, 0.12), transparent 24%),
+        linear-gradient(180deg, #07111f 0%, #020617 42%, #020617 100%);
+}
+
+.app-shell::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    background-image:
+        linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+    background-size: 64px 64px;
+    opacity: 0.22;
+    mask-image: linear-gradient(180deg, rgba(0, 0, 0, 0.5), transparent 78%);
+    will-change: transform;
+    contain: strict;
+    z-index: 0;
+}
+
+.app-sidebar {
+    background: linear-gradient(180deg, rgba(15, 23, 42, 0.95), rgba(2, 6, 23, 0.98));
+    box-shadow: 0 30px 80px rgba(0, 0, 0, 0.3);
+    backdrop-filter: blur(18px);
+    will-change: transform;
+    contain: layout style;
+}
+
+.app-brand {
+    gap: 0.8rem;
+    padding: 1.5rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.app-brand-mark {
+    border-color: rgba(255, 255, 255, 0.08);
+    background: linear-gradient(135deg, #e2e8f0, #94a3b8);
+    color: #020617;
+    box-shadow: 0 12px 24px rgba(255, 255, 255, 0.08);
+}
+
+.app-nav {
+    padding: 1rem 0.9rem;
+}
+
+.app-nav-link {
+    color: #94a3b8;
+    background: transparent;
+    border-color: transparent;
+    transition: transform 0.15s ease, background-color 0.15s ease, border-color 0.15s ease, color 0.15s ease;
+}
+
+.app-nav-link:hover {
+    transform: translateX(2px);
+    color: #fff;
+    background: rgba(255, 255, 255, 0.06);
+    border-color: rgba(255, 255, 255, 0.08);
+}
+
+.app-sidebar-footer {
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.app-topbar {
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    background: rgba(2, 6, 23, 0.8);
+    box-shadow: 0 10px 30px rgba(2, 6, 23, 0.35);
+    will-change: transform;
+    contain: layout style;
+}
+
+.app-content {
+    width: 100%;
+    max-width: 1440px;
+    margin: 0 auto;
+    padding: 1.25rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+}
+
+.glass-panel,
+.client-invoice-card,
+.client-panel,
+.client-stat-card {
+    background: linear-gradient(180deg, rgba(15, 23, 42, 0.96), rgba(2, 6, 23, 0.94));
+    border-color: rgba(255, 255, 255, 0.08);
+    box-shadow: 0 24px 60px rgba(0, 0, 0, 0.25);
+}
+
+.glass-panel:hover,
+.client-invoice-card:hover,
+.client-stat-card:hover,
+.client-list-item:hover {
+    border-color: rgba(52, 211, 153, 0.26);
+    box-shadow: 0 24px 60px rgba(0, 0, 0, 0.28);
+}
+
+.soft-border {
+    border-color: rgba(255, 255, 255, 0.08);
+}
+
+.table-row:hover {
+    background: rgba(255, 255, 255, 0.03);
+}
+
+tbody tr:nth-child(odd) {
+    background: rgba(255, 255, 255, 0.015);
+}
+
+table {
+    border-collapse: separate;
+    border-spacing: 0;
+}
+
+thead {
+    background: linear-gradient(180deg, rgba(15, 23, 42, 0.95), rgba(15, 23, 42, 0.82));
+}
+
+th {
+    color: #cbd5e1;
+}
+
+.badge {
+    box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.04);
+}
+
+.badge-active {
+    background: rgba(16, 185, 129, 0.18);
+    color: #86efac;
+}
+
+.badge-suspended {
+    background: rgba(245, 158, 11, 0.18);
+    color: #fcd34d;
+}
+
+.badge-pending {
+    background: rgba(59, 130, 246, 0.18);
+    color: #93c5fd;
+}
+
+.badge-deleted {
+    background: rgba(239, 68, 68, 0.18);
+    color: #fda4af;
+}
+
+.badge-info {
+    background: rgba(255, 255, 255, 0.08);
+    color: #e2e8f0;
+}
+
+.form-input {
+    border-radius: 1rem;
+    border-color: rgba(255, 255, 255, 0.08);
+    background: rgba(2, 6, 23, 0.75);
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.02);
+    transition: border-color 0.15s ease, box-shadow 0.15s ease, transform 0.15s ease;
+}
+
+.form-input:focus {
+    border-color: rgba(110, 231, 183, 0.7);
+    box-shadow: 0 0 0 4px rgba(16, 185, 129, 0.12);
+}
+
+.action-button {
+    padding: 0.7rem 1rem;
+    border-color: rgba(255, 255, 255, 0.08);
+    box-shadow: 0 10px 22px rgba(0, 0, 0, 0.18);
+    transition: transform 0.15s ease, background-color 0.15s ease, border-color 0.15s ease, box-shadow 0.15s ease, opacity 0.15s ease;
+}
+
+.action-button:hover {
+    transform: translateY(-1px);
+    border-color: rgba(255, 255, 255, 0.18);
+    box-shadow: 0 14px 26px rgba(0, 0, 0, 0.24);
+}
+
+.action-button.bg-emerald-500 {
+    background: linear-gradient(135deg, #34d399, #10b981);
+    color: #04111c;
+    border-color: rgba(16, 185, 129, 0.45);
+}
+
+.action-button.bg-emerald-500:hover {
+    background: linear-gradient(135deg, #6ee7b7, #34d399);
+}
+
+.action-button.bg-white\/5 {
+    background: rgba(255, 255, 255, 0.05);
+}
+
+.action-button.bg-white\/5:hover {
+    background: rgba(255, 255, 255, 0.08);
+}
+
+.action-button.bg-rose-500\/15 {
+    background: rgba(244, 63, 94, 0.16);
+}
+
+.action-button.bg-rose-500\/15:hover {
+    background: rgba(244, 63, 94, 0.24);
+}
+
+.client-list-item {
+    background: rgba(2, 6, 23, 0.8);
+}
+
+.client-empty-state {
+    border-color: rgba(255, 255, 255, 0.12);
+    background: rgba(255, 255, 255, 0.02);
+}
+
+.client-stat-icon {
+    background: linear-gradient(135deg, #f8fafc, #94a3b8);
+    color: #020617;
+}
+
+.client-invoice-amount {
+    letter-spacing: -0.02em;
+}
+
+@media (max-width: 767px) {
+    .app-content {
+        padding: 1rem;
+    }
+
+    .app-topbar {
+        padding: 1rem 0.9rem;
+    }
+
+    .action-button {
+        justify-content: center;
+    }
+
+    .client-dashboard-header,
+    .client-list-item,
+    .client-panel-header {
+        align-items: stretch;
+        flex-direction: column;
+    }
+}
+
+@media (min-width: 1024px) {
+    .app-content {
+        padding: 2rem 2.5rem;
+    }
+
+    .app-sidebar {
+        border-right: 1px solid rgba(255, 255, 255, 0.08);
+    }
+}

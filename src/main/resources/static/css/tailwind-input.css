@@ -392,6 +392,9 @@ table {
     flex-direction: column;
     gap: 0.25rem;
     padding: 1rem 0.75rem;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior: contain;
 }
 
 .app-nav-link {
@@ -454,7 +457,14 @@ table {
     display: flex;
     gap: 0.5rem;
     overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior-x: contain;
+    scrollbar-width: none;
     padding-bottom: 0.15rem;
+}
+
+.app-mobile-nav::-webkit-scrollbar {
+    display: none;
 }
 
 .app-mobile-nav a {
